@@ -45,6 +45,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
     function Invoke-TablePrep {
         $columns = @(
         'ModName'
+        'ModVersion'
         'ModAuthor'
         'ModDescription'
         'ModPath'
@@ -58,6 +59,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
         $syncHash.headerRow = $syncHash.dataTable.NewRow()
 
         $syncHash.headerRow.ModName            = 'Mod Name'
+        $syncHash.headerRow.ModVersion         = 'Mod Version'
         $syncHash.headerRow.ModAuthor          = 'Mod Author'
         $syncHash.headerRow.ModDescription     = 'Mod Description'
         $syncHash.headerRow.ModPath            = 'Mod Path'
@@ -109,10 +111,11 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
         $crestaMod = $crestaMods | Select-Object -First 1
 
         $allModsDeets = foreach ($mod in $allMods) {
-            $modInfo         = Get-Content -Path "$($mod.Fullname)\info.txt"
-            $modName         = if (($modInfo -match 'name = ' -split 'name = ')[1].Length -gt 2) {($modInfo -match 'name = ' -split 'name = ')[1] -replace "_",' '} else {"modName not found"}
-            $modAuthor       = if (($modInfo -match 'author = ' -split 'author = ')[1].Length -gt 2) {($modInfo -match 'author = ' -split 'author = ')[1]} else {"modAuthor not found"}
-            $modDescription  = if (($modInfo -match 'description = ' -split 'description = ')[1].Length -gt 2) {($modInfo -match 'description = ' -split 'description = ')[1]} else {"modDescription not found"}
+            $modInfo        = Get-Content -Path "$($mod.Fullname)\info.txt"
+            $modName        = if (($modInfo -match 'name = ' -split 'name = ')[1].Length -gt 2) {($modInfo -match 'name = ' -split 'name = ')[1] -replace "_",' '} else {"modName not found"}
+            $modVersion     = "unavailable"
+            $modAuthor      = if (($modInfo -match 'author = ' -split 'author = ')[1].Length -gt 2) {($modInfo -match 'author = ' -split 'author = ')[1]} else {"modAuthor not found"}
+            $modDescription = if (($modInfo -match 'description = ' -split 'description = ')[1].Length -gt 2) {($modInfo -match 'description = ' -split 'description = ')[1]} else {"modDescription not found"}
             # MyCresta Check
                 if (($modAuthor -match "My Cresta") -and ($mod -ne $crestaMod)) {
                     Continue
@@ -134,17 +137,19 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
             }
 
             [PSCustomObject]@{
-                'ModName' = $modName
-                'ModAuthor' = $modAuthor
-                'ModDescription' = $modDescription
-                'ModPath' = $mod.Fullname
-                'ModWebPage' = if ($modWebLink.Length -gt 25) {$modWebLink} else {"NA"}
-                'ModDownload' = if ($modPackageDownloadLink.Length -gt 25) {$modPackageDownloadLink} else {"NA"}
-                'modSearchName' = $modSearchName
+                'ModName'           = $modName
+                'ModVersion'        = $modVersion
+                'ModAuthor'         = $modAuthor
+                'ModDescription'    = $modDescription
+                'ModPath'           = $mod.Fullname
+                'ModWebPage'        = if ($modWebLink.Length -gt 25) {$modWebLink} else {"NA"}
+                'ModDownload'       = if ($modPackageDownloadLink.Length -gt 25) {$modPackageDownloadLink} else {"NA"}
+                'modSearchName'     = $modSearchName
             }
         
             $modInfo = $null
             $modName = $null
+            $modVersion = $null
             $modAuthor = $null
             $modDescription = $null
 
@@ -315,6 +320,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
         $row = $syncHash.dataTable.NewRow()
 
             $row.ModName            = $modItem.ModName
+            $row.ModVersion         = $modItem.ModVersion
             $row.ModAuthor          = $modItem.ModAuthor
             $row.ModDescription     = $modItem.ModDescription
             $row.ModPath            = $modItem.ModPath
@@ -370,6 +376,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                     $allModsData = foreach ($mod in $allMods) {
                         $modSearchName = $mod.modSearchName
                         $modName = $mod.ModName
+                        $modVersion = $mod.ModVersion
                         $modAuthor = $mod.ModAuthor
                         $modDescription = $mod.ModDescription
                         $modSearchURI = "https://teardownmods.com/index.php?/search/&q=" + ($modSearchName -replace " ",'%20' -replace "_",'%20' -replace "'s",'') + "&search_and_or=or&sortby=relevancy"
@@ -413,16 +420,18 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                         }
                     
                         [PSCustomObject]@{
-                            'ModName' = $modName
-                            'ModAuthor' = $modAuthor
-                            'ModDescription' = $modDescription
-                            'ModPath' = $mod.Fullname
-                            'ModWebPage' = if ($modWebLink.Length -gt 25) {$modWebLink} else {"Not Found"}
-                            'ModDownload' = if ($modPackageDownloadLink.Length -gt 25) {$modPackageDownloadLink} else {"Not Found"}
+                            'ModName'           = $modName
+                            'ModVersion'        = $modVersion
+                            'ModAuthor'         = $modAuthor
+                            'ModDescription'    = $modDescription
+                            'ModPath'           = $mod.Fullname
+                            'ModWebPage'        = if ($modWebLink.Length -gt 25) {$modWebLink} else {"Not Found"}
+                            'ModDownload'       = if ($modPackageDownloadLink.Length -gt 25) {$modPackageDownloadLink} else {"Not Found"}
                         }
                     
                         $modInfo = $null
                         $modName = $null
+                        $modVersion = $null
                         $modAuthor = $null
                         $modDescription = $null
                         $modSearchURI = $null
