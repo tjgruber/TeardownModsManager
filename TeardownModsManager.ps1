@@ -113,7 +113,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
         $allModsDeets = foreach ($mod in $allMods) {
             $modInfo        = Get-Content -Path "$($mod.Fullname)\info.txt"
             $modName        = if (($modInfo -match 'name = ' -split 'name = ')[1].Length -gt 2) {($modInfo -match 'name = ' -split 'name = ')[1] -replace "_",' '} else {"modName not found"}
-            $modVersion     = if (($modInfo -match 'version = ' -split 'version = ')[1].Length -gt 2) {($modInfo -match 'version = ' -split 'version = ')[1] -replace "_",' '} else {"unavailable"}
+            $modVersion     = if (($modInfo -match 'version = ' -split 'version = ')[1].Length -gt 2) {($modInfo -match 'version = ' -split 'version = ')[1] -replace "_",' '} else {"version not found in mod info.txt"}
             $modAuthor      = if (($modInfo -match 'author = ' -split 'author = ')[1].Length -gt 2) {($modInfo -match 'author = ' -split 'author = ')[1]} else {"modAuthor not found"}
             $modDescription = if (($modInfo -match 'description = ' -split 'description = ')[1].Length -gt 2) {($modInfo -match 'description = ' -split 'description = ')[1]} else {"modDescription not found"}
             # MyCresta Check
@@ -143,7 +143,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                 'ModDescription'    = $modDescription
                 'ModPath'           = $mod.Fullname
                 'ModWebPage'        = if ($modWebLink.Length -gt 25) {$modWebLink} else {"NA"}
-                'ModDownload'       = if ($modPackageDownloadLink.Length -gt 25) {$modPackageDownloadLink} else {"NA"}
+                'ModDownloadLink'   = if ($modPackageDownloadLink.Length -gt 25) {$modPackageDownloadLink} else {"NA"}
                 'modSearchName'     = $modSearchName
             }
         
@@ -175,7 +175,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
 <Window
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="Teardown Mods Manager v0.1.0 | by Timothy Gruber" Height="500" Width="958" ScrollViewer.VerticalScrollBarVisibility="Disabled" MinWidth="788" MinHeight="500">
+    Title="Teardown Mods Manager v0.1.0 | by Timothy Gruber" Height="500" Width="958" ScrollViewer.VerticalScrollBarVisibility="Disabled" MinWidth="924" MinHeight="500">
     <Grid>
         <DockPanel>
             <StatusBar DockPanel.Dock="Bottom">
@@ -212,9 +212,10 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                             <DockPanel DockPanel.Dock="Top" Margin="0">
                                 <Button DockPanel.Dock="Right" Name="BackupAllMods" Content="Backup All Mods" VerticalAlignment="Center" Height="30" Width="150" FontSize="14" Padding="10,1" Margin="5,0" HorizontalAlignment="Right" FontWeight="Bold"/>
                                 <Button DockPanel.Dock="Right" Name="ReloadModList" Content="Reload Mod List" VerticalAlignment="Center" Height="30" Width="150" FontSize="14" Padding="10,1" Margin="5,0" HorizontalAlignment="Right" FontWeight="Bold"/>
+                                <Button DockPanel.Dock="Right" Name="DeleteSelectedMod" Content="Delete Selected Mod" VerticalAlignment="Center" Height="30" Width="150" FontSize="12" Padding="10,1" Margin="5,0" HorizontalAlignment="Right" FontWeight="Bold" BorderThickness="2" BorderBrush="#FFAA1F1F" Foreground="#FF8D0000" Background="#FFFFF5B7"/>
                                 <Button DockPanel.Dock="Left" Name="UpdateSelectedMod" Content="Update Selected Mod" VerticalAlignment="Center" Height="30" Width="200" FontSize="14" Padding="10,1" Margin="5,0" HorizontalAlignment="Right" FontWeight="Bold"/>
+                                <Button DockPanel.Dock="Left" Name="UpdateAllMods" Content="Update All Mods" VerticalAlignment="Center" Height="30" Width="200" FontSize="14" Padding="10,1" Margin="5,0" HorizontalAlignment="Right" FontWeight="Bold"/>
                                 <StackPanel DockPanel.Dock="Left" HorizontalAlignment="Left" Margin="20,0,5,0">
-                                    <Button DockPanel.Dock="Left" Name="UpdateAllMods" Content="Update All Mods" VerticalAlignment="Center" Height="30" Width="200" FontSize="14" Padding="10,1" Margin="5,0" HorizontalAlignment="Right" FontWeight="Bold"/>
                                 </StackPanel>
                             </DockPanel>
                             <GroupBox Name="ModsListBoxGroupBox" Header="Installed Mods List" Margin="0,2,0,0">
@@ -277,7 +278,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                                 <TabItem Header="Installed Mods Tab" Height="20" VerticalAlignment="Top" TextOptions.TextFormattingMode="Display">
                                     <GroupBox Header="Services">
                                         <ScrollViewer>
-                                            <TextBlock ><Run FontWeight="Normal" Text="    1.  ...in progress."/></TextBlock>
+                                            <TextBlock ><Run FontWeight="Normal" Text="    1.  For now, this script only works if mods are in default location."/></TextBlock>
                                         </ScrollViewer>
                                     </GroupBox>
                                 </TabItem>
@@ -325,7 +326,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
             $row.ModDescription     = $modItem.ModDescription
             $row.ModPath            = $modItem.ModPath
             $row.ModWebpage         = $modItem.ModWebPage
-            $row.ModDownloadLink    = $modItem.ModDownload
+            $row.ModDownloadLink    = $modItem.ModDownloadLink
 
         [void]$syncHash.dataTable.Rows.Add($row)
     }
@@ -426,7 +427,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                             'ModDescription'    = $modDescription
                             'ModPath'           = $mod.Fullname
                             'ModWebPage'        = if ($modWebLink.Length -gt 25) {$modWebLink} else {"Not Found"}
-                            'ModDownload'       = if ($modPackageDownloadLink.Length -gt 25) {$modPackageDownloadLink} else {"Not Found"}
+                            'ModDownloadLink'   = if ($modPackageDownloadLink.Length -gt 25) {$modPackageDownloadLink} else {"Not Found"}
                         }
                     
                         $modInfo = $null
@@ -482,7 +483,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
 
                 ($syncHash.dataTable.Rows | Where-Object {$_.ModName -eq $modItem.modName}).ModWebPage = $modItem.ModWebPage
                 Update-Window -Control ProgressBar -Property "Value" -Value 75
-                ($syncHash.dataTable.Rows | Where-Object {$_.ModName -eq $modItem.modName}).ModDownload = $modItem.ModWebPage
+                ($syncHash.dataTable.Rows | Where-Object {$_.ModName -eq $modItem.modName}).ModDownloadLink = $modItem.ModDownloadLink
 
             }
 
@@ -516,30 +517,22 @@ $manWindowRunspaceScript.Runspace = $manWindowRunspace
 #############################################
 
 <# notes
+Update-Window -Control ProgressBar -Property "Background" -Value "#FFEA8A00"
+Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF0000"
+Update-Window -Control ProgressBar -Property "Value" -Value 50
 $test = $syncHash.dataTable | Where-Object -Property 'Mod Name' -EQ "Downtown"
-
 $test.Item.Value()
-
 $syncHash.dataTable.'Mod Webpage'
-
 $test.'Mod Webpage'
-
 Update-Window -Control $syncHash.ModsListDataGrid -Property 'background' -Value "#000000"
-
 $syncHash.dataTable.Item.Value
-
 $test = $syncHash.ModsListDataGrid.Items | Where-Object -Property 'Mod Name' -EQ "Downtown"
-
 $syncHash.StatusBarText.Dispatcher.Invoke([action]{$syncHash.StatusBarText.Text = "something"}, "Normal")
 $syncHash.ModsListDataGrid.Dispatcher.Invoke([action]{$syncHash.ModsListDataGrid.RowBackground = "#FFFFFF"}, "Normal")
-
 $syncHash.ModsListDataGrid
-
 $syncHash.dataTable.DefaultView.RowFilter = "ModName LIKE 'Downtown'"
 $syncHash.dataTable.DefaultView.RowFilter = ""
-
 ($syncHash.dataTable.Rows | Where-Object {$_.ModName -match ".500"}).ModWebpage = "Test"
-
 $syncHash.ModsListDataGrid.ItemsSource = $syncHash.dataTable.DefaultView
 Update-Window -Control ModsListDataGrid -Property "ItemsSource" -Value $syncHash.dataTable.DefaultView
 #>
