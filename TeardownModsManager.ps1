@@ -170,7 +170,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
 <Window
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="Teardown Mod Manager v0.1.0 | by Timothy Gruber" Height="500" Width="958" ScrollViewer.VerticalScrollBarVisibility="Disabled">
+    Title="Teardown Mods Manager v0.1.0 | by Timothy Gruber" Height="500" Width="958" ScrollViewer.VerticalScrollBarVisibility="Disabled" MinWidth="788" MinHeight="500">
     <Grid>
         <DockPanel>
             <StatusBar DockPanel.Dock="Bottom">
@@ -200,13 +200,16 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                 </StatusBarItem>
             </StatusBar>
             <TabControl>
-                <TabItem Header="Installed Mods" HorizontalAlignment="Left" Height="20" VerticalAlignment="Top" TextOptions.TextFormattingMode="Display">
+                <TabItem Header="Installed Mods" HorizontalAlignment="Left" Height="30" VerticalAlignment="Top" TextOptions.TextFormattingMode="Display" Width="125">
                     <DockPanel Margin="0,5,0,0">
                         <Grid DockPanel.Dock="Bottom" Margin="5,1"/>
                         <DockPanel DockPanel.Dock="Right" Margin="0">
                             <DockPanel DockPanel.Dock="Top" Margin="0">
-                                <Button DockPanel.Dock="Left" Name="UpdateSelectedMod" Content="Update Selected Mod" VerticalAlignment="Center" Height="30" FontSize="14" Padding="10,1" Margin="5,0" HorizontalAlignment="Right" FontWeight="Bold"/>
+                                <Button DockPanel.Dock="Right" Name="BackupAllMods" Content="Backup All Mods" VerticalAlignment="Center" Height="30" Width="150" FontSize="14" Padding="10,1" Margin="5,0" HorizontalAlignment="Right" FontWeight="Bold"/>
+                                <Button DockPanel.Dock="Right" Name="ReloadModList" Content="Reload Mod List" VerticalAlignment="Center" Height="30" Width="150" FontSize="14" Padding="10,1" Margin="5,0" HorizontalAlignment="Right" FontWeight="Bold"/>
+                                <Button DockPanel.Dock="Left" Name="UpdateSelectedMod" Content="Update Selected Mod" VerticalAlignment="Center" Height="30" Width="200" FontSize="14" Padding="10,1" Margin="5,0" HorizontalAlignment="Right" FontWeight="Bold"/>
                                 <StackPanel DockPanel.Dock="Left" HorizontalAlignment="Left" Margin="20,0,5,0">
+                                    <Button DockPanel.Dock="Left" Name="UpdateAllMods" Content="Update All Mods" VerticalAlignment="Center" Height="30" Width="200" FontSize="14" Padding="10,1" Margin="5,0" HorizontalAlignment="Right" FontWeight="Bold"/>
                                 </StackPanel>
                             </DockPanel>
                             <GroupBox Name="ModsListBoxGroupBox" Header="Installed Mods List" Margin="0,2,0,0">
@@ -215,6 +218,10 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                                         <Style TargetType="DataGridRow">
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding 'ModName'}" Value="Mod Name">
+                                                    <Setter Property="Background" Value="#F3F3F3" />
+                                                    <Setter Property="FontWeight" Value="Medium" />
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding 'ModVersion'}" Value="Mod Version">
                                                     <Setter Property="Background" Value="#F3F3F3" />
                                                     <Setter Property="FontWeight" Value="Medium" />
                                                 </DataTrigger>
@@ -246,7 +253,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                         </DockPanel>
                     </DockPanel>
                 </TabItem>
-                <TabItem Header="Help" HorizontalAlignment="Left" Height="20" VerticalAlignment="Top" TextOptions.TextFormattingMode="Display">
+                <TabItem Header="Help" HorizontalAlignment="Left" Height="30" VerticalAlignment="Top" TextOptions.TextFormattingMode="Display" Width="100">
                     <DockPanel Margin="0,5,0,0">
                         <GroupBox Header="about" DockPanel.Dock="Bottom" VerticalAlignment="Bottom" FontWeight="Bold">
                             <ScrollViewer>
@@ -331,6 +338,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
 
     $syncHash.UpdateSelectedMod.Add_Click({
 
+        Update-Window -Control ProgressBar -Property "Value" -Value 0
         Update-Window -Control StatusBarText -Property Text -Value "Updating mod: [$(($syncHash.ModsListDataGrid.SelectedCells | Select-Object -First 1).Item.ModName)]..."
 
         $UpdateSelectedModRunspace = [runspacefactory]::CreateRunspace()
@@ -343,9 +351,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
         $UpdateSelectedModRunspaceScript = [PowerShell]::Create().AddScript({
 
             #############################################
-            #############################################
             #region FUNCTIONS
-            #############################################
             #############################################
 
             function Get-ModData {
@@ -355,7 +361,9 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                     $allMods
                 )
                 
-                begin {}
+                begin {
+                    Update-Window -Control ProgressBar -Property "Value" -Value 12
+                }
                 
                 process {
 
@@ -366,7 +374,9 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                         $modDescription = $mod.ModDescription
                         $modSearchURI = "https://teardownmods.com/index.php?/search/&q=" + ($modSearchName -replace " ",'%20' -replace "_",'%20' -replace "'s",'') + "&search_and_or=or&sortby=relevancy"
                         #Write-Host "`tSearching teardownmods.com for mod at: [$modSearchURI]"
+                        Update-Window -Control StatusBarText -Property Text -Value "Updating mod: [$(($syncHash.ModsListDataGrid.SelectedCells | Select-Object -First 1).Item.ModName)] || Searching teardownmods.com for mod..."
                         $modSearchResults = Invoke-WebRequest $modSearchURI -UseBasicParsing -ErrorAction SilentlyContinue
+                        Update-Window -Control ProgressBar -Property "Value" -Value 25
                         $modWebLink = ($modSearchResults.Links | Where-Object {$_.outerHTML -match $modSearchName -and $_.href -match "getNewComment"} | Select-Object -First 1).href -replace '&amp;','&'
                         if (-not $modWebLink) {
                             $modSearchNameSplit = $modName -split " "
@@ -385,15 +395,19 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                                 $modWebLink = ($modSearchResults.Links | Where-Object {$_.outerHTML -match $modSearchName -and $_.href -match "getNewComment"} | Select-Object -First 1).href -replace '&amp;','&'
                             }
                         }
+
+                        Update-Window -Control ProgressBar -Property "Value" -Value 50
                     
                         if ($modWebLink) {
                             #Write-Host "`tAccessing mod web page at teardownmods.com at: [$modWebLink]"
                             $modWebPage = Invoke-WebRequest -Uri $modWebLink -SessionVariable mwp -UseBasicParsing -ErrorAction SilentlyContinue
                             $modDownloadLink = ($modWebPage.Links | Where-Object {$_ -match '&amp;do=download&amp;csrfKey='} | Select-Object -First 1).href -replace '&amp;','&'
                             #Write-Host "`tAccessing mod download page at teardownmods.com at: [$modDownloadLink]"
+                            Update-Window -Control StatusBarText -Property Text -Value "Updating mod: [$(($syncHash.ModsListDataGrid.SelectedCells | Select-Object -First 1).Item.ModName)] || Accessing mod download page at teardownmods.com..."
                             $modPackageDownloadPage = Invoke-WebRequest -Uri $modDownloadLink -Method Get -WebSession $mwp -UseBasicParsing -ErrorAction SilentlyContinue
                             $modPackageDownloadLink = ($modPackageDownloadPage.Links | Where-Object {$_.'data-action' -eq 'download'} | Select-Object -Last 1).href -replace '&amp;','&'
                             #Write-Host "`tAssuming mod package download link at teardownmods.com is: [$modPackageDownloadLink]"
+                            Update-Window -Control StatusBarText -Property Text -Value "Updating mod: [$(($syncHash.ModsListDataGrid.SelectedCells | Select-Object -First 1).Item.ModName)] || Assuming mod package download link at teardownmods.com..."
                         } else {
                             #Write-Warning "Mod [$modName] not found in teardownmods.com search results!"
                         }
@@ -449,9 +463,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
             }
 
             #############################################
-            #############################################
             #endRegion FUNCTIONS
-            #############################################
             #############################################
 
             #$allModsData = Get-ModData -allMods ($syncHash.allModsDeetz | Select-Object -First 3)
@@ -460,11 +472,13 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
             foreach ($modItem in $allModsData) {
 
                 ($syncHash.dataTable.Rows | Where-Object {$_.ModName -eq $modItem.modName}).ModWebPage = $modItem.ModWebPage
+                Update-Window -Control ProgressBar -Property "Value" -Value 75
                 ($syncHash.dataTable.Rows | Where-Object {$_.ModName -eq $modItem.modName}).ModDownload = $modItem.ModWebPage
 
             }
 
-            Update-Window -Control StatusBarText -Property Text -Value "Mod updated: [$(($syncHash.ModsListDataGrid.SelectedCells | Select-Object -First 1).Item.ModName)] | Ready..."
+            Update-Window -Control ProgressBar -Property "Value" -Value 100
+            Update-Window -Control StatusBarText -Property Text -Value "Ready... || Finished updating mod: $(($syncHash.ModsListDataGrid.SelectedCells | Select-Object -First 1).Item.ModName) ||"
 
         })
 
