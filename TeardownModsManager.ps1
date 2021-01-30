@@ -404,7 +404,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                             }
                         }
 
-                        Update-Window -Control ProgressBar -Property "Value" -Value 50
+                        Update-Window -Control ProgressBar -Property "Value" -Value 40
                     
                         if ($modWebLink) {
                             #Write-Host "`tAccessing mod web page at teardownmods.com at: [$modWebLink]"
@@ -482,7 +482,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
             foreach ($modItem in $allModsData) {
 
                 ($syncHash.dataTable.Rows | Where-Object {$_.ModName -eq $modItem.modName}).ModWebPage = $modItem.ModWebPage
-                Update-Window -Control ProgressBar -Property "Value" -Value 75
+                Update-Window -Control ProgressBar -Property "Value" -Value 50
                 ($syncHash.dataTable.Rows | Where-Object {$_.ModName -eq $modItem.modName}).ModDownloadLink = $modItem.ModDownloadLink
 
             }
