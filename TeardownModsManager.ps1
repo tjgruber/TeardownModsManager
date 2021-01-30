@@ -113,7 +113,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
         $allModsDeets = foreach ($mod in $allMods) {
             $modInfo        = Get-Content -Path "$($mod.Fullname)\info.txt"
             $modName        = if (($modInfo -match 'name = ' -split 'name = ')[1].Length -gt 2) {($modInfo -match 'name = ' -split 'name = ')[1] -replace "_",' '} else {"modName not found"}
-            $modVersion     = "unavailable"
+            $modVersion     = if (($modInfo -match 'version = ' -split 'version = ')[1].Length -gt 2) {($modInfo -match 'version = ' -split 'version = ')[1] -replace "_",' '} else {"unavailable"}
             $modAuthor      = if (($modInfo -match 'author = ' -split 'author = ')[1].Length -gt 2) {($modInfo -match 'author = ' -split 'author = ')[1]} else {"modAuthor not found"}
             $modDescription = if (($modInfo -match 'description = ' -split 'description = ')[1].Length -gt 2) {($modInfo -match 'description = ' -split 'description = ')[1]} else {"modDescription not found"}
             # MyCresta Check
