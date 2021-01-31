@@ -391,7 +391,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                         $modDescription = $mod.ModDescription
                         $modSearchURI = "https://teardownmods.com/index.php?/search/&q=" + ($modSearchName -replace " ",'%20' -replace "_",'%20' -replace "'s",'') + "&search_and_or=or&sortby=relevancy"
                         #Write-Host "`tSearching teardownmods.com for mod at: [$modSearchURI]"
-                        Update-Window -Control StatusBarText -Property Text -Value "Updating mod: [$(($syncHash.ModsListDataGrid.SelectedCells | Select-Object -First 1).Item.ModName)] || Searching teardownmods.com for mod..."
+                        Update-Window -Control StatusBarText -Property Text -Value "Searching teardownmods.com for [$modName]..."
                         $modSearchResults = Invoke-WebRequest $modSearchURI -UseBasicParsing -ErrorAction SilentlyContinue
                         Update-Window -Control ProgressBar -Property "Value" -Value 25
                         $modWebLink = ($modSearchResults.Links | Where-Object {$_.outerHTML -match $modSearchName -and $_.href -match "getNewComment"} | Select-Object -First 1).href -replace '&amp;','&'
@@ -421,11 +421,11 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                             $syncHash.mwp = $mwp
                             $modDownloadLink = ($modWebPage.Links | Where-Object {$_ -match '&amp;do=download&amp;csrfKey='} | Select-Object -First 1).href -replace '&amp;','&'
                             #Write-Host "`tAccessing mod download page at teardownmods.com at: [$modDownloadLink]"
-                            Update-Window -Control StatusBarText -Property Text -Value "Updating mod: [$(($syncHash.ModsListDataGrid.SelectedCells | Select-Object -First 1).Item.ModName)] || Accessing mod download page at teardownmods.com..."
+                            Update-Window -Control StatusBarText -Property Text -Value "Accessing [$modName] mod download page at teardownmods.com..."
                             $modPackageDownloadPage = Invoke-WebRequest -Uri $modDownloadLink -Method Get -WebSession $syncHash.mwp -UseBasicParsing -ErrorAction SilentlyContinue
                             $modPackageDownloadLink = ($modPackageDownloadPage.Links | Where-Object {$_.'data-action' -eq 'download'} | Select-Object -Last 1).href -replace '&amp;','&'
                             #Write-Host "`tAssuming mod package download link at teardownmods.com is: [$modPackageDownloadLink]"
-                            Update-Window -Control StatusBarText -Property Text -Value "Updating mod: [$(($syncHash.ModsListDataGrid.SelectedCells | Select-Object -First 1).Item.ModName)] || Assuming mod package download link at teardownmods.com..."
+                            Update-Window -Control StatusBarText -Property Text -Value "Assuming [$modName] mod package download link at teardownmods.com..."
                         } else {
                             #Write-Warning "Mod [$modName] not found in teardownmods.com search results!"
                         }
@@ -494,7 +494,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                 ($syncHash.dataTable.Rows | Where-Object {$_.ModName -eq $modItem.modName}).ModWebPage = $modItem.ModWebPage
                 ($syncHash.dataTable.Rows | Where-Object {$_.ModName -eq $modItem.modName}).ModDownloadLink = $modItem.ModDownloadLink
 
-                Update-Window -Control StatusBarText -Property Text -Value "Updating mod: [$(($syncHash.ModsListDataGrid.SelectedCells | Select-Object -First 1).Item.ModName)] || Retrieving mod download info..."
+                Update-Window -Control StatusBarText -Property Text -Value "Retrieving [$($modItem.modName)] mod download info..."
 
                 Update-Window -Control ProgressBar -Property "Value" -Value 50
 
@@ -502,7 +502,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                 $newDir = New-Item -Path "$env:TEMP\TeardownMods" -ItemType Directory -Force
                 $outFilePath = "$env:TEMP\TeardownMods\$outFile"
                 Update-Window -Control ProgressBar -Property "Value" -Value 60
-                Update-Window -Control StatusBarText -Property Text -Value "Updating mod: [$(($syncHash.ModsListDataGrid.SelectedCells | Select-Object -First 1).Item.ModName)] || Downloading mod..."
+                Update-Window -Control StatusBarText -Property Text -Value "Downloading [$($modItem.modName)] mod..."
                 Invoke-WebRequest -Uri $modItem.ModDownloadLink -OutFile $outFilePath -WebSession $syncHash.mwp -UseBasicParsing -ErrorAction SilentlyContinue -ErrorVariable DLERR
 
                 if (-not (Test-Path -Path $outFilePath -PathType Leaf)) {
@@ -512,10 +512,10 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                     Break
                 }
 
-                Update-Window -Control StatusBarText -Property Text -Value "Updating mod: [$(($syncHash.ModsListDataGrid.SelectedCells | Select-Object -First 1).Item.ModName)] || Mod download finished..."
+                Update-Window -Control StatusBarText -Property Text -Value "[$($modItem.modName)] mod package download finished..."
                 Update-Window -Control ProgressBar -Property "Value" -Value 75
 
-                Update-Window -Control StatusBarText -Property Text -Value "Updating mod: [$(($syncHash.ModsListDataGrid.SelectedCells | Select-Object -First 1).Item.ModName)] || Removing old version of mod..."
+                Update-Window -Control StatusBarText -Property Text -Value "Removing old version of [$($modItem.modName)] mod..."
                 Remove-Item -Path $modItem.ModPath -Recurse -Force
 
                 # Verify old version of mod was removed from mods directory:
@@ -526,7 +526,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                     Break
                 }
 
-                Update-Window -Control StatusBarText -Property Text -Value "Updating mod: [$(($syncHash.ModsListDataGrid.SelectedCells | Select-Object -First 1).Item.ModName)] || Extracting [$outFilePath] to [$($modItem.ModPath)]..."
+                Update-Window -Control StatusBarText -Property Text -Value "Extracting [$outFilePath] to [$($modItem.ModPath)]..."
                 Expand-Archive -Path $outFilePath -DestinationPath "$env:USERPROFILE\Documents\Teardown\mods" -Force -ErrorAction SilentlyContinue -ErrorVariable EXARERR
                 #VERIFY NEW MOD
 
