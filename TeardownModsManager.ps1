@@ -522,24 +522,92 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                 Update-Window -Control ProgressBar -Property "Value" -Value 75
 
                 Update-Window -Control StatusBarText -Property Text -Value "Removing old version of [$($modItem.modName)] mod..."
-                Remove-Item -Path $modItem.ModPath -Recurse -Force
 
-                # Verify old version of mod was removed from mods directory:
-                if ((Test-Path -Path $modItem.ModPath) -eq $true) {
-                    Update-Window -Control ProgressBar -Property "Background" -Value "#FFEA8A00"
-                    Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF0000"
-                    Update-Window -Control StatusBarText -Property Text -Value "ERROR: There was a problem removing old mod version folder: [$($modItem.ModPath)]."
-                    Break
-                }
+                if ($modItem.modName -eq "Functional Weapon Pack") {
+                    $CrestaWpnPckList = @(
+                        '500 Magnum'
+                        'AC130 Airstrike'
+                        'AK-47'
+                        'AWP'
+                        'Black Hole'
+                        'Charge Shotgun'
+                        'Desert Eagle'
+                        'Dragonslayer'
+                        'Dual Berettas'
+                        'Dual Miniguns'
+                        'Exploding Star'
+                        'Guided Missile'
+                        'Hadouken'
+                        'Holy Grenade'
+                        'Laser Cutter'
+                        'Lightkatana'
+                        'M4A1'
+                        'M249'
+                        'Magic Bag'
+                        'MGL'
+                        'Minigun'
+                        'Mjolner'
+                        'Nova'
+                        'P90'
+                        'RPG'
+                        'SCAR-20'
+                        'Scorpion'
+                        'SG-553'
+                    )
 
-                Update-Window -Control StatusBarText -Property Text -Value "Extracting [$outFilePath] to [$($modItem.ModPath)]..."
-                Expand-Archive -Path $outFilePath -DestinationPath "$env:USERPROFILE\Documents\Teardown\mods" -Force -ErrorAction SilentlyContinue -ErrorVariable EXARERR
-                # Verify new mod has been successfully extracted to mods folder:
-                if ((Test-Path -Path $modItem.ModPath) -eq $false) {
-                    Update-Window -Control ProgressBar -Property "Background" -Value "#FFEA8A00"
-                    Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF0000"
-                    Update-Window -Control StatusBarText -Property Text -Value "ERROR: Mod folder [$($modItem.ModPath)] was not detected after zip archive extraction to mods folder. Please create GitHub issue."
-                    Break
+                    foreach ($wpnMod in $CrestaWpnPckList) {
+
+                        Remove-Item -Path "$env:USERPROFILE\Documents\Teardown\mods\$wpnMod" -Recurse -Force
+
+                        # Verify old version of mod was removed from mods directory:
+                        if ((Test-Path -Path "$env:USERPROFILE\Documents\Teardown\mods\$wpnMod") -eq $true) {
+                            Update-Window -Control ProgressBar -Property "Background" -Value "#FFEA8A00"
+                            Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF0000"
+                            Update-Window -Control StatusBarText -Property Text -Value "ERROR: There was a problem removing old mod version folder: [$("$env:USERPROFILE\Documents\Teardown\mods\$wpnMod")]."
+                            Break
+                        }
+
+                    }
+
+                    Update-Window -Control StatusBarText -Property Text -Value "Extracting [$outFilePath] to [$("$env:USERPROFILE\Documents\Teardown\mods\")]..."
+
+                    Expand-Archive -Path $outFilePath -DestinationPath "$env:USERPROFILE\Documents\Teardown\mods" -Force -ErrorAction SilentlyContinue -ErrorVariable EXARERR
+
+                    foreach ($wpnMod in $CrestaWpnPckList) {
+
+                        # Verify new mod has been successfully extracted to mods folder:
+                        if ((Test-Path -Path "$env:USERPROFILE\Documents\Teardown\mods\$wpnMod") -eq $false) {
+                            Update-Window -Control ProgressBar -Property "Background" -Value "#FFEA8A00"
+                            Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF0000"
+                            Update-Window -Control StatusBarText -Property Text -Value "ERROR: Mod folder [$("$env:USERPROFILE\Documents\Teardown\mods\$wpnMod")] was not detected after zip archive extraction to mods folder. Please create GitHub issue."
+                            Break
+                        }
+
+                    }
+
+                } else {
+
+                    Remove-Item -Path $modItem.ModPath -Recurse -Force
+
+                    # Verify old version of mod was removed from mods directory:
+                    if ((Test-Path -Path $modItem.ModPath) -eq $true) {
+                        Update-Window -Control ProgressBar -Property "Background" -Value "#FFEA8A00"
+                        Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF0000"
+                        Update-Window -Control StatusBarText -Property Text -Value "ERROR: There was a problem removing old mod version folder: [$($modItem.ModPath)]."
+                        Break
+                    }
+
+                    Update-Window -Control StatusBarText -Property Text -Value "Extracting [$outFilePath] to [$($modItem.ModPath)]..."
+                
+                    Expand-Archive -Path $outFilePath -DestinationPath "$env:USERPROFILE\Documents\Teardown\mods" -Force -ErrorAction SilentlyContinue -ErrorVariable EXARERR
+                    # Verify new mod has been successfully extracted to mods folder:
+                    if ((Test-Path -Path $modItem.ModPath) -eq $false) {
+                        Update-Window -Control ProgressBar -Property "Background" -Value "#FFEA8A00"
+                        Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF0000"
+                        Update-Window -Control StatusBarText -Property Text -Value "ERROR: Mod folder [$($modItem.ModPath)] was not detected after zip archive extraction to mods folder. Please create GitHub issue."
+                        Break
+                    }
+
                 }
 
                 Update-Window -Control ProgressBar -Property "Value" -Value 87
@@ -553,8 +621,12 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
 
                 Update-Window -Control StatusBarText -Property Text -Value "Zip archive extracted..."
 
+                # Clean up the mod archive download from temp folder:
+                Remove-Item -Path $outFilePath -Force
+
                 Update-Window -Control ProgressBar -Property "Value" -Value 100
                 Update-Window -Control StatusBarText -Property Text -Value "[$($modItem.modName)] mod update finished successfully! Ready..."
+
             }
 
             #############################################
