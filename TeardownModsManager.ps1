@@ -513,13 +513,20 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                 Update-Window -Control StatusBarText -Property Text -Value "Updating mod: [$(($syncHash.ModsListDataGrid.SelectedCells | Select-Object -First 1).Item.ModName)] || Mod download finished..."
                 Update-Window -Control ProgressBar -Property "Value" -Value 75
 
-                #$modName = $modItem.modName
-                #$extractPath = $modItem.ModPath -split "\\$modName"
+                Update-Window -Control StatusBarText -Property Text -Value "Updating mod: [$(($syncHash.ModsListDataGrid.SelectedCells | Select-Object -First 1).Item.ModName)] || Removing old version of mod..."
                 Remove-Item -Path $modItem.ModPath -Recurse -Force
-                #VERIFY ITEM REMOVAL!
+
+                # Verify old version of mod was removed from mods directory:
+                if ((Test-Path -Path $modItem.ModPath) -eq $true) {
+                    Update-Window -Control ProgressBar -Property "Background" -Value "#FFEA8A00"
+                    Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF0000"
+                    Update-Window -Control StatusBarText -Property Text -Value "ERROR: There was a problem removing old mod version folder: [$($modItem.ModPath)]."
+                    Break
+                }
+
+                Update-Window -Control StatusBarText -Property Text -Value "Updating mod: [$(($syncHash.ModsListDataGrid.SelectedCells | Select-Object -First 1).Item.ModName)] || Extracting [$outFilePath] to [$($modItem.ModPath)]..."
                 Expand-Archive -Path $outFilePath -DestinationPath "$env:USERPROFILE\Documents\Teardown\mods" -Force -ErrorAction SilentlyContinue -ErrorVariable EXARERR
                 #VERIFY NEW MOD
-                Update-Window -Control StatusBarText -Property Text -Value "Updating mod: [$(($syncHash.ModsListDataGrid.SelectedCells | Select-Object -First 1).Item.ModName)] || Extracting [$outFilePath] to [$($modItem.ModPath)]..."
 
                 #Update-Window -Control StatusBarText -Property Text -Value "Updating mod: [$(($syncHash.ModsListDataGrid.SelectedCells | Select-Object -First 1).Item.ModName)] || Zip archive extracted..."
 
@@ -547,6 +554,47 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
     #endRegion UPDATE SELECTED MOD BUTTON
     #############################################
     #############################################
+
+    #############################################
+    #############################################
+    #region RELOAD MOD LIST BUTTON
+    #############################################
+    #############################################
+
+    $syncHash.ReloadModList.Add_Click({
+
+        $syncHash.ModsListDataGrid.Visibility = "Hidden"
+
+        Invoke-TablePrep
+
+        $syncHash.allModsDeetz = Get-ModDeets
+    
+        foreach ($modItem in $syncHash.allModsDeetz) {
+    
+            $row = $syncHash.dataTable.NewRow()
+    
+                $row.ModName            = $modItem.ModName
+                $row.ModVersion         = $modItem.ModVersion
+                $row.ModAuthor          = $modItem.ModAuthor
+                $row.ModDescription     = $modItem.ModDescription
+                $row.ModPath            = $modItem.ModPath
+                $row.ModWebpage         = $modItem.ModWebPage
+                $row.ModDownloadLink    = $modItem.ModDownloadLink
+    
+            [void]$syncHash.dataTable.Rows.Add($row)
+        }
+
+        Update-Window -Control ProgressBar -Property "Value" -Value 0
+        Update-Window -Control StatusBarText -Property Text -Value "Mod list refreshed. Ready..."
+
+    })
+
+    #############################################
+    #############################################
+    #endRegion RELOAD MOD LIST BUTTON
+    #############################################
+    #############################################
+
 
     [Void]$syncHash.Window.ShowDialog()
     $syncHash.Error = $Error
