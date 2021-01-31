@@ -270,22 +270,22 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                             <TabControl TabStripPlacement="Left">
                                 <TabItem Header="General" Height="35" TextOptions.TextFormattingMode="Display" VerticalAlignment="Top" HorizontalContentAlignment="Stretch" FontSize="14">
                                     <GroupBox Header="General..." FontSize="16">
-                                        <ScrollViewer>
-                                            <TextBlock  TextWrapping="Wrap" FontWeight="Normal"><Run FontWeight="Normal" Text="This script is used to manage installed Teardown mods."/><LineBreak/><Run FontWeight="Normal"/><LineBreak/><Run FontWeight="Normal" Text="All mods are checked against teardownmods.com"/><LineBreak/><Run FontWeight="Normal"/><LineBreak/><Run FontWeight="Normal" Text="The sign-in button is not yet functional."/></TextBlock>
+                                        <ScrollViewer HorizontalScrollBarVisibility="Auto">
+                                            <TextBlock  TextWrapping="Wrap" FontWeight="Normal"><Run FontWeight="Normal" Text="This script can be used to update, backup, and remove installed Teardown mods until until Steam Workshop availability in Teardown 0.6."/><LineBreak/><Run FontWeight="Normal"/><LineBreak/><Run FontWeight="Normal" Text="All mods are checked against teardownmods.com"/><LineBreak/><Run FontWeight="Normal"/><LineBreak/><Run FontWeight="Normal" Text="The sign-in button is not yet functional."/></TextBlock>
                                         </ScrollViewer>
                                     </GroupBox>
                                 </TabItem>
                                 <TabItem Header="Installed Mods Tab" Height="35" VerticalAlignment="Top" TextOptions.TextFormattingMode="Display" FontSize="14">
                                     <GroupBox Header="Installed Mods Tab..." FontSize="16">
-                                        <ScrollViewer>
-                                            <TextBlock ><Run FontWeight="Normal" Text="    1.  For now, this script only works if mods are in default location."/></TextBlock>
+                                        <ScrollViewer HorizontalScrollBarVisibility="Auto">
+                                            <TextBlock ><Run FontWeight="Normal" FontSize="14" Text="    1.  For now, this script only works if mods are in default location."/><LineBreak/><Run FontWeight="Normal" FontSize="14" Text="    2.  Make sure to back up your mods location. By default, this is your 'Documents\Teardown\mods' folder. Do this manually until I implement this function."/></TextBlock>
                                         </ScrollViewer>
                                     </GroupBox>
                                 </TabItem>
                                 <TabItem Header="Mod Compatibility" Height="35" VerticalAlignment="Top" TextOptions.TextFormattingMode="Display" FontSize="14">
                                     <GroupBox Header="Mod devs: to help ensure mod compatibility with Teardown Mods Manager..." FontSize="16">
-                                        <ScrollViewer>
-                                            <TextBlock ><Run FontWeight="Normal" FontSize="14" Text="    1.  Ensure mod 'name = ' in mod info.txt matches the name of your mod at teardownmods.com."/><LineBreak/><Run FontWeight="Normal" FontSize="14" Text="    2.  Ensure mod name matches folder name, i.e. 'Documents\Teardown\mods\folder name'."/></TextBlock>
+                                        <ScrollViewer HorizontalScrollBarVisibility="Auto">
+                                            <TextBlock ><Run FontWeight="Normal" FontSize="14" Text="    1.  Mod name consistency is the biggest factor in your mod working with this app."/><LineBreak/><Run FontWeight="Normal" FontSize="14" Text="    2.  Using a .zip archive is second biggest factor, until I feel like implementing other support."/><LineBreak/><Run FontWeight="Normal" FontSize="14" Text="    3.  Ensure mod 'name = ' in mod info.txt matches the name of your mod at teardownmods.com."/><LineBreak/><Run FontWeight="Normal" FontSize="14" Text="    4.  Ensure mod name matches folder name, i.e. 'Documents\Teardown\mods\mod name'."/><LineBreak/><Run FontWeight="Normal" FontSize="14" Text="    5.  Ensure 'version = ' in mod info.txt is current released version at teardownmods.com. Something meaningful to the most amount of people, such as '2021.01.31.x' or '1.5.2' for example."/><LineBreak/><Run FontWeight="Normal" FontSize="14" Text="    6.  Ensure the last file in the downloads list at teardownmods.com for the mod is the regular default mod and is a .zip file."/><LineBreak/><Run FontWeight="Normal" FontSize="14" Text="    7.  Ensure name of mod folder is zipped: so extracting to Teardown\mods will result in Teardown\mods\modName"/><LineBreak/><Run FontWeight="Normal" FontSize="14" Text="    8.  Instead of having multiple mods/maps, use mod options to control lighting, time of day, weather, etc."/><LineBreak/><Run FontWeight="Normal" FontSize="14" Text="    9.  Try to package mods together in the same mod folder that are part of the same mod package. That way I don't have to hard code a workaround."/></TextBlock>
                                         </ScrollViewer>
                                     </GroupBox>
                                 </TabItem>
@@ -349,14 +349,6 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
     #region UPDATE SELECTED MOD BUTTON
     #############################################
     #############################################
-
-    $syncHash.UpdateSelectedMod.Add_MouseEnter({
-        Update-Window -Control StatusBarText -Property Text -Value "Select a mod from the list to update!"
-    })
-    
-    $syncHash.UpdateSelectedMod.Add_MouseLeave({
-        Update-Window -Control StatusBarText -Property Text -Value "Ready..."
-    })
 
     $syncHash.UpdateSelectedMod.Add_Click({
 
@@ -780,24 +772,3 @@ $manWindowRunspaceScript.Runspace = $manWindowRunspace
 #endRegion MAIN WINDOW
 #############################################
 #############################################
-
-<# notes
-Update-Window -Control ProgressBar -Property "Background" -Value "#FFEA8A00"
-Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF0000"
-Update-Window -Control ProgressBar -Property "Value" -Value 50
-$test = $syncHash.dataTable | Where-Object -Property 'Mod Name' -EQ "Downtown"
-$test.Item.Value()
-$syncHash.dataTable.'Mod Webpage'
-$test.'Mod Webpage'
-Update-Window -Control $syncHash.ModsListDataGrid -Property 'background' -Value "#000000"
-$syncHash.dataTable.Item.Value
-$test = $syncHash.ModsListDataGrid.Items | Where-Object -Property 'Mod Name' -EQ "Downtown"
-$syncHash.StatusBarText.Dispatcher.Invoke([action]{$syncHash.StatusBarText.Text = "something"}, "Normal")
-$syncHash.ModsListDataGrid.Dispatcher.Invoke([action]{$syncHash.ModsListDataGrid.RowBackground = "#FFFFFF"}, "Normal")
-$syncHash.ModsListDataGrid
-$syncHash.dataTable.DefaultView.RowFilter = "ModName LIKE 'Downtown'"
-$syncHash.dataTable.DefaultView.RowFilter = ""
-($syncHash.dataTable.Rows | Where-Object {$_.ModName -match ".500"}).ModWebpage = "Test"
-$syncHash.ModsListDataGrid.ItemsSource = $syncHash.dataTable.DefaultView
-Update-Window -Control ModsListDataGrid -Property "ItemsSource" -Value $syncHash.dataTable.DefaultView
-#>
