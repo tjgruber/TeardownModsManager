@@ -409,10 +409,11 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                         if ($modWebLink) {
                             #Write-Host "`tAccessing mod web page at teardownmods.com at: [$modWebLink]"
                             $modWebPage = Invoke-WebRequest -Uri $modWebLink -SessionVariable mwp -UseBasicParsing -ErrorAction SilentlyContinue
+                            $syncHash.mwp = $mwp
                             $modDownloadLink = ($modWebPage.Links | Where-Object {$_ -match '&amp;do=download&amp;csrfKey='} | Select-Object -First 1).href -replace '&amp;','&'
                             #Write-Host "`tAccessing mod download page at teardownmods.com at: [$modDownloadLink]"
                             Update-Window -Control StatusBarText -Property Text -Value "Updating mod: [$(($syncHash.ModsListDataGrid.SelectedCells | Select-Object -First 1).Item.ModName)] || Accessing mod download page at teardownmods.com..."
-                            $modPackageDownloadPage = Invoke-WebRequest -Uri $modDownloadLink -Method Get -WebSession $mwp -UseBasicParsing -ErrorAction SilentlyContinue
+                            $modPackageDownloadPage = Invoke-WebRequest -Uri $modDownloadLink -Method Get -WebSession $syncHash.mwp -UseBasicParsing -ErrorAction SilentlyContinue
                             $modPackageDownloadLink = ($modPackageDownloadPage.Links | Where-Object {$_.'data-action' -eq 'download'} | Select-Object -Last 1).href -replace '&amp;','&'
                             #Write-Host "`tAssuming mod package download link at teardownmods.com is: [$modPackageDownloadLink]"
                             Update-Window -Control StatusBarText -Property Text -Value "Updating mod: [$(($syncHash.ModsListDataGrid.SelectedCells | Select-Object -First 1).Item.ModName)] || Assuming mod package download link at teardownmods.com..."
@@ -482,13 +483,34 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
             foreach ($modItem in $allModsData) {
 
                 ($syncHash.dataTable.Rows | Where-Object {$_.ModName -eq $modItem.modName}).ModWebPage = $modItem.ModWebPage
-                Update-Window -Control ProgressBar -Property "Value" -Value 50
                 ($syncHash.dataTable.Rows | Where-Object {$_.ModName -eq $modItem.modName}).ModDownloadLink = $modItem.ModDownloadLink
 
+                Update-Window -Control ProgressBar -Property "Value" -Value 50
+
+                $outFile = "$($modItem.modName).zip"
+                $newDir = New-Item -Path "$env:TEMP\TeardownMods" -ItemType Directory -Force
+                $outFilePath = "$env:TEMP\TeardownMods\$outFile"
+                Update-Window -Control ProgressBar -Property "Value" -Value 60
+                Invoke-WebRequest -Uri $modItem.ModDownloadLink -WebSession $syncHash.mwp -OutFile $outFilePath -UseBasicParsing -ErrorAction SilentlyContinue -ErrorVariable DLERR
+                #(New-Object System.Net.WebClient).DownloadFile($modItem.ModDownloadLink, $outFilePath)
+
+                if (-not (Test-Path -Path $outFilePath -PathType Leaf)) {
+                    Update-Window -Control ProgressBar -Property "Background" -Value "#FFEA8A00"
+                    Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF0000"
+                    Break
+                }
+
+                Update-Window -Control ProgressBar -Property "Value" -Value 75
+
+                # Verify new download before removing old and extracting
+                Expand-Archive -Path $outFilePath -DestinationPath "$($modItem.ModPath)_test" -Force
+
+                Update-Window -Control ProgressBar -Property "Value" -Value 87
+                Update-Window -Control ProgressBar -Property "Value" -Value 100
             }
 
-            Update-Window -Control ProgressBar -Property "Value" -Value 100
-            Update-Window -Control StatusBarText -Property Text -Value "Ready... || Finished updating mod: $(($syncHash.ModsListDataGrid.SelectedCells | Select-Object -First 1).Item.ModName) ||"
+            #Update-Window -Control ProgressBar -Property "Value" -Value 100
+            #Update-Window -Control StatusBarText -Property Text -Value "Ready... || Finished updating mod: $(($syncHash.ModsListDataGrid.SelectedCells | Select-Object -First 1).Item.ModName) ||"
 
         })
 
