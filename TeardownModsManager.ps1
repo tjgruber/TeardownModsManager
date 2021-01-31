@@ -133,7 +133,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
             if ($mod -eq $crestaMod) {
                 $modSearchName = "Functional Weapon Pack"
                 $modName = "Functional Weapon Pack"
-                $modDescription = "27 Different Fully Working Weapons"
+                $modDescription = "28 Different Fully Working Weapons"
             }
 
             [PSCustomObject]@{
