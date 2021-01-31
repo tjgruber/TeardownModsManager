@@ -175,7 +175,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
 <Window
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="Teardown Mods Manager v0.1.0 | by Timothy Gruber" Height="500" Width="958" ScrollViewer.VerticalScrollBarVisibility="Disabled" MinWidth="924" MinHeight="500">
+    Title="Teardown Mods Manager v2021.01.31.1 | by Timothy Gruber" Height="500" Width="958" ScrollViewer.VerticalScrollBarVisibility="Disabled" MinWidth="924" MinHeight="500">
     <Grid>
         <DockPanel>
             <StatusBar DockPanel.Dock="Bottom">
@@ -263,29 +263,29 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                     <DockPanel Margin="0,5,0,0">
                         <GroupBox Header="about" DockPanel.Dock="Bottom" VerticalAlignment="Bottom" FontWeight="Bold">
                             <ScrollViewer>
-                                <TextBlock TextWrapping="Wrap" FontWeight="Normal"><Run FontWeight="Bold" Text="Created by: "/><Run Text="&#x9;Timothy Gruber&#xA;"/><Run FontWeight="Bold" Text="Website:&#x9;"/><Hyperlink NavigateUri="https://timothygruber.com/"><Run Text="TimothyGruber.com&#xA;"/></Hyperlink><Run FontWeight="Bold" Text="Gitlab:&#x9;&#x9;"/><Hyperlink NavigateUri="https://gitlab.com/tjgruber/PoShGUI365"><Run Text="https://gitlab.com/tjgruber/PoShGUI365&#xA;"/></Hyperlink><Run FontWeight="Bold" Text="Version:"/><Run Text="&#x9;&#x9;2021.01.28.0.1.0"/></TextBlock>
+                                <TextBlock TextWrapping="Wrap" FontWeight="Normal"><Run FontWeight="Bold" Text="Created by: "/><Run Text="&#x9;Timothy Gruber&#xA;"/><Run FontWeight="Bold" Text="Website:&#x9;"/><Hyperlink NavigateUri="https://timothygruber.com/"><Run Text="TimothyGruber.com&#xA;"/></Hyperlink><Run FontWeight="Bold" Text="GitHub:&#x9;&#x9;"/><Hyperlink NavigateUri="https://github.com/tjgruber/TeardownModsManager"><Run Text="https://github.com/tjgruber/TeardownModsManager&#xA;"/></Hyperlink><Run FontWeight="Bold" Text="Version:"/><Run Text="&#x9;&#x9;2021.01.31.1"/></TextBlock>
                             </ScrollViewer>
                         </GroupBox>
-                        <GroupBox Header="Instructions..." FontWeight="Bold">
+                        <GroupBox Header="Help Menu:" FontWeight="Bold" FontSize="14">
                             <TabControl TabStripPlacement="Left">
-                                <TabItem Header="General" Height="20" TextOptions.TextFormattingMode="Display" VerticalAlignment="Top" HorizontalContentAlignment="Stretch">
-                                    <GroupBox Header="General">
+                                <TabItem Header="General" Height="35" TextOptions.TextFormattingMode="Display" VerticalAlignment="Top" HorizontalContentAlignment="Stretch" FontSize="14">
+                                    <GroupBox Header="General..." FontSize="16">
                                         <ScrollViewer>
                                             <TextBlock  TextWrapping="Wrap" FontWeight="Normal"><Run FontWeight="Normal" Text="This script is used to manage installed Teardown mods."/><LineBreak/><Run FontWeight="Normal"/><LineBreak/><Run FontWeight="Normal" Text="All mods are checked against teardownmods.com"/><LineBreak/><Run FontWeight="Normal"/><LineBreak/><Run FontWeight="Normal" Text="The sign-in button is not yet functional."/></TextBlock>
                                         </ScrollViewer>
                                     </GroupBox>
                                 </TabItem>
-                                <TabItem Header="Installed Mods Tab" Height="20" VerticalAlignment="Top" TextOptions.TextFormattingMode="Display">
-                                    <GroupBox Header="Installed Mods Tab">
+                                <TabItem Header="Installed Mods Tab" Height="35" VerticalAlignment="Top" TextOptions.TextFormattingMode="Display" FontSize="14">
+                                    <GroupBox Header="Installed Mods Tab..." FontSize="16">
                                         <ScrollViewer>
                                             <TextBlock ><Run FontWeight="Normal" Text="    1.  For now, this script only works if mods are in default location."/></TextBlock>
                                         </ScrollViewer>
                                     </GroupBox>
                                 </TabItem>
-                                <TabItem Header="Mod Compatibility" Height="20" VerticalAlignment="Top" TextOptions.TextFormattingMode="Display">
-                                    <GroupBox Header="To ensure mod compatibility with Teardown Mods Manager:">
+                                <TabItem Header="Mod Compatibility" Height="35" VerticalAlignment="Top" TextOptions.TextFormattingMode="Display" FontSize="14">
+                                    <GroupBox Header="Mod devs: to help ensure mod compatibility with Teardown Mods Manager..." FontSize="16">
                                         <ScrollViewer>
-                                            <TextBlock ><Run FontWeight="Normal" Text="    1.  Ensure mod 'name = ' in mod info.txt matches the name of your mod at teardownmods.com."/><LineBreak/><Run FontWeight="Normal" Text="    1.  Ensure mod name matches folder name, i.e. 'Documents\Teardown\mods\folder name'."/></TextBlock>
+                                            <TextBlock ><Run FontWeight="Normal" FontSize="14" Text="    1.  Ensure mod 'name = ' in mod info.txt matches the name of your mod at teardownmods.com."/><LineBreak/><Run FontWeight="Normal" FontSize="14" Text="    2.  Ensure mod name matches folder name, i.e. 'Documents\Teardown\mods\folder name'."/></TextBlock>
                                         </ScrollViewer>
                                     </GroupBox>
                                 </TabItem>
