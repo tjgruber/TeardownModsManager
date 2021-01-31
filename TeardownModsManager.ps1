@@ -350,6 +350,14 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
     #############################################
     #############################################
 
+    $syncHash.UpdateSelectedMod.Add_MouseEnter({
+        Update-Window -Control StatusBarText -Property Text -Value "Select a mod from the list to update!"
+    })
+    
+    $syncHash.UpdateSelectedMod.Add_MouseLeave({
+        Update-Window -Control StatusBarText -Property Text -Value "Ready..."
+    })
+
     $syncHash.UpdateSelectedMod.Add_Click({
 
         Update-Window -Control ProgressBar -Property "Value" -Value 0
@@ -688,6 +696,77 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
     #############################################
     #############################################
 
+    #############################################
+    #############################################
+    #region UPDATE ALL MODS BUTTON
+    #############################################
+    #############################################
+
+    $syncHash.UpdateAllMods.Add_Click({
+
+        Update-Window -Control StatusBarText -Property Text -Value "This button is not yet functional. Ready..."
+
+    })
+
+    #############################################
+    #############################################
+    #endRegion UPDATE ALL MODS BUTTON
+    #############################################
+    #############################################
+
+    #############################################
+    #############################################
+    #region DELETE SELECTED MOD BUTTON
+    #############################################
+    #############################################
+
+    $syncHash.DeleteSelectedMod.Add_Click({
+
+        Update-Window -Control StatusBarText -Property Text -Value "This button is not yet functional. Ready..."
+
+    })
+
+    #############################################
+    #############################################
+    #endRegion DELETE SELECTED MOD BUTTON
+    #############################################
+    #############################################
+
+    #############################################
+    #############################################
+    #region BACKUP ALL MODS BUTTON
+    #############################################
+    #############################################
+
+    $syncHash.BackupAllMods.Add_Click({
+
+        Update-Window -Control StatusBarText -Property Text -Value "This button is not yet functional. Ready..."
+
+    })
+
+    #############################################
+    #############################################
+    #endRegion BACKUP ALL MODS BUTTON
+    #############################################
+    #############################################
+
+    #############################################
+    #############################################
+    #region SIGN-IN BUTTON
+    #############################################
+    #############################################
+
+    $syncHash.SignInButton.Add_Click({
+
+        Update-Window -Control StatusBarText -Property Text -Value "This button is not yet functional. Ready..."
+
+    })
+
+    #############################################
+    #############################################
+    #endRegion SIGN-IN BUTTON
+    #############################################
+    #############################################
 
     [Void]$syncHash.Window.ShowDialog()
     $syncHash.Error = $Error
