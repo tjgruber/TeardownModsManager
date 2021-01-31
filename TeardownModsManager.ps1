@@ -353,7 +353,10 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
     $syncHash.UpdateSelectedMod.Add_Click({
 
         Update-Window -Control ProgressBar -Property "Value" -Value 0
-        Update-Window -Control StatusBarText -Property Text -Value "Updating mod: [$(($syncHash.ModsListDataGrid.SelectedCells | Select-Object -First 1).Item.ModName)]..."
+
+        if (-not ($syncHash.ModsListDataGrid.SelectedCells | Select-Object -First 1).Item) {
+            Update-Window -Control StatusBarText -Property Text -Value "No mod selected. Please select a mod and try again!"
+        }
 
         $UpdateSelectedModRunspace = [runspacefactory]::CreateRunspace()
         $UpdateSelectedModRunspace.Name = "SignInWindow"
@@ -375,13 +378,12 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                     $allMods
                 )
                 
-                begin {
-                    Update-Window -Control ProgressBar -Property "Value" -Value 12
-                }
+                begin {}
                 
                 process {
 
                     $allModsData = foreach ($mod in $allMods) {
+                        Update-Window -Control ProgressBar -Property "Value" -Value 12
                         $modSearchName = $mod.modSearchName
                         $modName = $mod.ModName
                         $modVersion = $mod.ModVersion
