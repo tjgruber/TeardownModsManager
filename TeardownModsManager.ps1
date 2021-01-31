@@ -486,6 +486,12 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
             #endRegion FUNCTIONS
             #############################################
 
+            #############################################
+            #############################################
+            #region UPDATE SELECTED MOD BUTTON LOGIC
+            #############################################
+            #############################################
+
             #$allModsData = Get-ModData -allMods ($syncHash.allModsDeetz | Select-Object -First 3)
             $allModsData = Get-ModData -allMods ($syncHash.allModsDeetz | Where-Object -Property ModName -EQ (($syncHash.ModsListDataGrid.SelectedCells | Select-Object -First 1).Item.ModName))
 
@@ -528,9 +534,15 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
 
                 Update-Window -Control StatusBarText -Property Text -Value "Extracting [$outFilePath] to [$($modItem.ModPath)]..."
                 Expand-Archive -Path $outFilePath -DestinationPath "$env:USERPROFILE\Documents\Teardown\mods" -Force -ErrorAction SilentlyContinue -ErrorVariable EXARERR
-                #VERIFY NEW MOD
+                # Verify new mod has been successfully extracted to mods folder:
+                if ((Test-Path -Path $modItem.ModPath) -eq $false) {
+                    Update-Window -Control ProgressBar -Property "Background" -Value "#FFEA8A00"
+                    Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF0000"
+                    Update-Window -Control StatusBarText -Property Text -Value "ERROR: Mod folder [$($modItem.ModPath)] was not detected after zip archive extraction to mods folder. Please create GitHub issue."
+                    Break
+                }
 
-                #Update-Window -Control StatusBarText -Property Text -Value "Updating mod: [$(($syncHash.ModsListDataGrid.SelectedCells | Select-Object -First 1).Item.ModName)] || Zip archive extracted..."
+                Update-Window -Control ProgressBar -Property "Value" -Value 87
 
                 if ($EXARERR) {
                     Update-Window -Control ProgressBar -Property "Background" -Value "#FFEA8A00"
@@ -539,10 +551,17 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                     Break
                 }
 
-                Update-Window -Control ProgressBar -Property "Value" -Value 87
+                Update-Window -Control StatusBarText -Property Text -Value "Zip archive extracted..."
+
                 Update-Window -Control ProgressBar -Property "Value" -Value 100
-                #Update-Window -Control StatusBarText -Property Text -Value "Ready...        || Finished updating mod: $(($syncHash.ModsListDataGrid.SelectedCells | Select-Object -First 1).Item.ModName) ||"
+                Update-Window -Control StatusBarText -Property Text -Value "[$($modItem.modName)] mod update finished successfully! Ready..."
             }
+
+            #############################################
+            #############################################
+            #endRegion UPDATE SELECTED MOD BUTTON LOGIC
+            #############################################
+            #############################################
 
         })
 
