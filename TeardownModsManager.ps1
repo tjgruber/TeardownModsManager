@@ -276,9 +276,16 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                                     </GroupBox>
                                 </TabItem>
                                 <TabItem Header="Installed Mods Tab" Height="20" VerticalAlignment="Top" TextOptions.TextFormattingMode="Display">
-                                    <GroupBox Header="Services">
+                                    <GroupBox Header="Installed Mods Tab">
                                         <ScrollViewer>
                                             <TextBlock ><Run FontWeight="Normal" Text="    1.  For now, this script only works if mods are in default location."/></TextBlock>
+                                        </ScrollViewer>
+                                    </GroupBox>
+                                </TabItem>
+                                <TabItem Header="Mod Compatibility" Height="20" VerticalAlignment="Top" TextOptions.TextFormattingMode="Display">
+                                    <GroupBox Header="To ensure mod compatibility with Teardown Mods Manager:">
+                                        <ScrollViewer>
+                                            <TextBlock ><Run FontWeight="Normal" Text="    1.  Ensure mod 'name = ' in mod info.txt matches the name of your mod at teardownmods.com."/><LineBreak/><Run FontWeight="Normal" Text="    1.  Ensure mod name matches folder name, i.e. 'Documents\Teardown\mods\folder name'."/></TextBlock>
                                         </ScrollViewer>
                                     </GroupBox>
                                 </TabItem>
