@@ -1,5 +1,5 @@
 # TeardownModsManager
-This script may be used to update, backup, and remove installed Teardown mods until until Steam Workshop availability in Teardown 0.6.
+This script may be used to update, backup, and remove installed Teardown mods until Steam Workshop availability in Teardown 0.6.
 
 This is a work in progress, at least until Steam Workshop implementation in Teardown 0.6 potentially makes this obsolete.
 
