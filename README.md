@@ -1,6 +1,12 @@
 # TeardownModsManager
 This script may be used to update, backup, and remove installed Teardown mods until until Steam Workshop availability in Teardown 0.6.
 
+This is a work in progress, at least until Steam Workshop implementation in Teardown 0.6 potentially makes this obsolete.
+
+If there are any issues, please create or report them here: https://github.com/tjgruber/TeardownModsManager/issues!
+
+![Demo1](images/TeardownModsManager2021.01.31.1_Demo1.gif)
+
 ## How to use
 
 ### Via EXE:
@@ -36,3 +42,13 @@ As a mod creator or developer, the following practices can help ensure mod compa
   7.  Ensure name of mod folder is zipped: so extracting to Teardown\mods will result in `Teardown\mods\modName`
   8.  Instead of having multiple mods/maps, use mod options to control lighting, time of day, weather, etc.
   9.  Try to package mods together in the same mod folder that are part of the same mod package. That way I don't have to hard code a workaround.
+
+## Media
+
+![Demo2](images/TeardownModsManager2021.01.31.1_Demo2.gif)
+
+![Screenshot1](images/Screenshot_1.png)
+
+![Screenshot2](images/Screenshot_2.png)
+
+![Screenshot3](images/Screenshot_3.png)
