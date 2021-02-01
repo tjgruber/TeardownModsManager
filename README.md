@@ -5,7 +5,7 @@ This is a work in progress, at least until Steam Workshop implementation in Tear
 
 If there are any issues, please create or report them here: https://github.com/tjgruber/TeardownModsManager/issues!
 
-![Demo1](images/TeardownModsManager2021.01.31.1_Demo1.gif)
+![Demo1](images/TeardownModsManager_v1.0.0_Demo1.gif)
 
 ## How to use
 
@@ -37,7 +37,7 @@ As a mod creator or developer, the following practices can help ensure mod compa
   2. Using a .zip archive is second biggest factor, until I feel like implementing other support.
   3.  Ensure mod `name = ` in mod info.txt matches the name of your mod at teardownmods.com.
   4.  Ensure mod name matches folder name, i.e. `Documents\Teardown\mods\mod name`.
-  5.  Ensure `version = ` in mod info.txt is current released version at teardownmods.com. Something meaningful to the most amount of people, such as `2021.01.31.x` or `1.5.2` for example.
+  5.  Ensure `version = ` in mod info.txt is current released version at teardownmods.com. Something meaningful to the most amount of people, such as `2021.01.31.x` or `1.5.2` preferably for example. See semantic versioning: https://semver.org/
   6.  Ensure the last file in the downloads list at teardownmods.com for the mod is the regular default mod and is a .zip file.
   7.  Ensure name of mod folder is zipped: so extracting to Teardown\mods will result in `Teardown\mods\modName`
   8.  Instead of having multiple mods/maps, use mod options to control lighting, time of day, weather, etc.
@@ -45,7 +45,7 @@ As a mod creator or developer, the following practices can help ensure mod compa
 
 ## Media
 
-![Demo2](images/TeardownModsManager2021.01.31.1_Demo2.gif)
+![Demo2](images/TeardownModsManager_v1.0.0_Demo2.gif)
 
 ![Screenshot1](images/Screenshot_1.png)
 
