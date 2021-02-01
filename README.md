@@ -33,6 +33,14 @@ Make sure to back up your mods location. By default, this is your `Documents\Tea
 **Note:**
   > When a mod developer fixes naming consistency of a mod that was prevously inconsistent, you may get an error saying the mod could not be found after extraction. This is expected. Try reloading mod list, and trying again, as the error is correct, but it still likely updated just fine.
 
+## Backup All Mods
+This button is now functional as of v1.1.0-alpha.
+
+This will back up your `Documents\Teardown\mods` folder to for example: `Documents\Teardown\mods_backup_132566554489856810.zip`.
+
+**Note:**
+  > This process can take awhile depending on how big your mods folder is. It can take around 30 seconds per gig. In my test, it took about 32 seconds to back up a mods folder that is 1.4GB.
+
 ## Mod Compatibility
 Mod devs: to help ensure mod compatibility with Teardown Mods Manager...
 As a mod creator or developer, the following practices can help ensure mod compatibility with Teardown Mods Manager:
