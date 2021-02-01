@@ -1,3 +1,26 @@
+<# TeardownModsManager | by Timothy Gruber
+
+Designed and written by Timothy Gruber:
+    https://timothygruber.com
+    https://github.com/tjgruber/TeardownModsManager
+
+#>
+
+#region Run script as elevated admin and unrestricted executionpolicy
+$myWindowsID = [System.Security.Principal.WindowsIdentity]::GetCurrent()
+$myWindowsPrincipal = New-Object System.Security.Principal.WindowsPrincipal($myWindowsID)
+$adminRole = [System.Security.Principal.WindowsBuiltInRole]::Administrator
+if ($myWindowsPrincipal.IsInRole($adminRole)) {
+    $Host.UI.RawUI.WindowTitle = "Teardown Mods Manager | by Timothy Gruber"
+    $Host.UI.RawUI.BackgroundColor = "DarkBlue"
+    Clear-Host
+} else {
+    Start-Process PowerShell.exe -ArgumentList "-ExecutionPolicy Unrestricted -NoExit $($script:MyInvocation.MyCommand.Path)" -Verb RunAs
+    Exit
+}
+#endregion
+
+Write-Host "Running Teardown Mods Manager | by Timothy Gruber...`n`nClosing this window will close Teardown Mods Manager.`n"
 
 #############################################
 #############################################
@@ -359,7 +382,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
         }
 
         $UpdateSelectedModRunspace = [runspacefactory]::CreateRunspace()
-        $UpdateSelectedModRunspace.Name = "SignInWindow"
+        $UpdateSelectedModRunspace.Name = "UpdateSelectedModButton"
         $UpdateSelectedModRunspace.ApartmentState = "STA"
         $UpdateSelectedModRunspace.ThreadOptions = "ReuseThread"
         $UpdateSelectedModRunspace.Open()
@@ -762,6 +785,10 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
 
     [Void]$syncHash.Window.ShowDialog()
     $syncHash.Error = $Error
+    $manWindowRunspace.Close()
+    $manWindowRunspace.Dispose()
+    $UpdateSelectedModRunspace.Close()
+    $UpdateSelectedModRunspace.Dispose()
 })
 
 $manWindowRunspaceScript.Runspace = $manWindowRunspace
