@@ -779,12 +779,79 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
     #############################################
     #############################################
 
+    $syncHash.BackupAllMods.Add_MouseEnter({
+        Update-Window -Control BackupAllMods -Property Tooltip -Value "Potentially time consuming, backs up all mods in [$env:USERPROFILE\Documents\Teardown\mods] to [$env:USERPROFILE\Documents\Teardown\mods_backup_x.zip]."
+    })
+
     $syncHash.BackupAllMods.Add_Click({
 
-        Update-Window -Control ProgressBar -Property "Background" -Value "#FFE6E6E6"
-        Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF06B025"
+        Update-Window -Control ProgressBar -Property "Value" -Value 0
 
-        Update-Window -Control StatusBarText -Property Text -Value "This button is not yet functional. Ready..."
+        Update-Window -Control ProgressBar -Property "Value" -Value 5
+
+        $BackupAllModsRunspace = [runspacefactory]::CreateRunspace()
+        $BackupAllModsRunspace.Name = "BackupAllModsButton"
+        $BackupAllModsRunspace.ApartmentState = "STA"
+        $BackupAllModsRunspace.ThreadOptions = "ReuseThread"
+        $BackupAllModsRunspace.Open()
+        $BackupAllModsRunspace.SessionStateProxy.SetVariable("syncHash", $syncHash)
+
+        $BackupAllModsRunspaceScript = [PowerShell]::Create().AddScript({
+
+            Function Update-Window {
+                Param (
+                    $Control,
+                    $Property,
+                    $Value,
+                    [switch]$AppendContent
+                )
+                If ($Property -eq "Close") {
+                    $syncHash.Window.Dispatcher.invoke([action]{$syncHash.Window.Close()},"Normal")
+                    Return
+                }
+                $syncHash.$Control.Dispatcher.Invoke([action]{
+                    If ($PSBoundParameters['AppendContent']) {
+                        $syncHash.$Control.AppendText($Value)
+                    } Else {
+                        $syncHash.$Control.$Property = $Value
+                    }
+                }, "Normal")
+            }
+
+            Update-Window -Control ProgressBar -Property "Background" -Value "#FFE6E6E6"
+            Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF06B025"
+
+            $compress = @{
+                Path = "$env:USERPROFILE\Documents\Teardown\mods"
+                CompressionLevel = "Fastest"
+                DestinationPath = "$env:USERPROFILE\Documents\Teardown\mods_backup_$((Get-Date).ToFileTime()).zip"
+            }
+
+            Update-Window -Control ProgressBar -Property "Value" -Value 28
+
+            Update-Window -Control StatusBarText -Property Text -Value "Please wait... backing up mods directory [$($compress.Path)] to [$($compress.DestinationPath)]"
+            Update-Window -Control StatusBarText -Property Tooltip -Value "Please wait... backing up mods directory [$($compress.Path)] to [$($compress.DestinationPath)]"
+
+            Update-Window -Control ProgressBar -Property "Value" -Value 36
+
+            $backup = Compress-Archive @compress -Force -ErrorAction SilentlyContinue -ErrorVariable BACKUPERR
+
+            if ($BACKUPERR) {
+                Update-Window -Control ProgressBar -Property "Background" -Value "#FFEA8A00"
+                Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF0000"
+                Update-Window -Control StatusBarText -Property Text -Value "ERROR: There was a problem backing up mods folder [$($compress.Path)] to [$($compress.DestinationPath)]. $BACKUPERR"
+                Update-Window -Control StatusBarText -Property Tooltip -Value "ERROR: There was a problem backing up mods folder [$($compress.Path)] to [$($compress.DestinationPath)]. $BACKUPERR"
+            } else {
+                Update-Window -Control ProgressBar -Property "Value" -Value 89
+                Update-Window -Control StatusBarText -Property Text -Value "Finished backing up mods directory! [$($compress.Path)] to [$($compress.DestinationPath)]"
+                Update-Window -Control StatusBarText -Property Tooltip -Value "Finished backing up mods directory! [$($compress.Path)] to [$($compress.DestinationPath)]"
+                Update-Window -Control ProgressBar -Property "Value" -Value 100
+            }
+
+        })
+
+        $BackupAllModsRunspaceScript.Runspace = $BackupAllModsRunspace
+        $data = $BackupAllModsRunspaceScript.BeginInvoke()
 
     })
 
@@ -821,6 +888,8 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
     $manWindowRunspace.Dispose()
     $UpdateSelectedModRunspace.Close()
     $UpdateSelectedModRunspace.Dispose()
+    $BackupAllModsRunspace.Close()
+    $BackupAllModsRunspace.Dispose()
 })
 
 $manWindowRunspaceScript.Runspace = $manWindowRunspace
