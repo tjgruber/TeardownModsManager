@@ -630,7 +630,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                     if ((Test-Path -Path $modItem.ModPath) -eq $false) {
                         Update-Window -Control ProgressBar -Property "Background" -Value "#FFEA8A00"
                         Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF0000"
-                        Update-Window -Control StatusBarText -Property Text -Value "ERROR: Mod folder [$($modItem.ModPath)] was not detected after zip archive extraction to mods folder. Please create GitHub issue."
+                        Update-Window -Control StatusBarText -Property Text -Value "ERROR: Mod folder [$($modItem.ModPath)] was not detected after zip archive extraction to mods folder. Please create GitHub issue. Was the archive not a .zip file?"
                         Update-Window -Control StatusBarText -Property Tooltip -Value "ERROR: Mod folder [$("$env:USERPROFILE\Documents\Teardown\mods\$wpnMod")] was not detected after zip archive extraction to mods folder. Please create GitHub issue. Was the archive not a .zip file?"
                         Break
                     }
