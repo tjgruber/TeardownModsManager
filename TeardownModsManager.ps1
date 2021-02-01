@@ -305,6 +305,13 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                                         </ScrollViewer>
                                     </GroupBox>
                                 </TabItem>
+                                <TabItem Header="Backup All Mods Tab" Height="35" VerticalAlignment="Top" TextOptions.TextFormattingMode="Display" FontSize="14">
+                                    <GroupBox Header="Backup All Mods Tab..." FontSize="16">
+                                        <ScrollViewer HorizontalScrollBarVisibility="Auto">
+                                            <TextBlock ><Run FontWeight="Normal" FontSize="14" Text="    1.  This button will back up your 'Documents\Teardown\mods' folder to for example: 'Documents\Teardown\mods_backup_132566554489856810.zip'."/><LineBreak/><Run FontWeight="Normal" FontSize="14" Text="    2.  This process can take awhile depending on how big your mods folder is. It can take around 30 seconds per gig. In my test, it took about 32 seconds to back up a mods folder that is 1.4GB."/></TextBlock>
+                                        </ScrollViewer>
+                                    </GroupBox>
+                                </TabItem>
                                 <TabItem Header="Mod Compatibility" Height="35" VerticalAlignment="Top" TextOptions.TextFormattingMode="Display" FontSize="14">
                                     <GroupBox Header="Mod devs: to help ensure mod compatibility with Teardown Mods Manager..." FontSize="16">
                                         <ScrollViewer HorizontalScrollBarVisibility="Auto">
