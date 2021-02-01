@@ -522,20 +522,34 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
 
             foreach ($modItem in $allModsData) {
 
+                Update-Window -Control StatusBarText -Property Text -Value "Retrieving [$($modItem.modName)] mod download info..."
+                Update-Window -Control ProgressBar -Property "Value" -Value 50
+
                 ($syncHash.dataTable.Rows | Where-Object {$_.ModName -eq $modItem.modName}).ModWebPage = $modItem.ModWebPage
                 ($syncHash.dataTable.Rows | Where-Object {$_.ModName -eq $modItem.modName}).ModDownloadLink = $modItem.ModDownloadLink
 
-                Update-Window -Control StatusBarText -Property Text -Value "Retrieving [$($modItem.modName)] mod download info..."
-
-                Update-Window -Control ProgressBar -Property "Value" -Value 50
-
                 $outFile = "$($modItem.modName).zip"
                 $newDir = New-Item -Path "$env:TEMP\TeardownMods" -ItemType Directory -Force
+                $extractionTestPath = "$($newDir.FullName)\$($modItem.modName)"
                 $outFilePath = "$env:TEMP\TeardownMods\$outFile"
-                Update-Window -Control ProgressBar -Property "Value" -Value 60
+                Update-Window -Control ProgressBar -Property "Value" -Value 58
+
+                # Test download package file, verify is .zip
+                Update-Window -Control StatusBarText -Property Text -Value "Testing [$($modItem.modName)] download link..."
+                $dlFileTestRequest = Invoke-WebRequest -Uri $modItem.ModDownloadLink -Method Head -WebSession $syncHash.mwp -UseBasicParsing -ErrorAction SilentlyContinue -ErrorVariable DLTESTERR
+                $dlFileTestName = $dlFileTestRequest.Headers.'Content-Disposition' -split "\." -replace """",'' | Select-Object -Last 1
+                if ($dlFileTestName -ne "zip") {
+                    Update-Window -Control ProgressBar -Property "Background" -Value "#FFEA8A00"
+                    Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF0000"
+                    $DLTESTERRCUSTOM = if ($DLTESTERR) {"[$($dlFileTestRequest.Headers.'Content-Disposition')] - $DLTESTERR"} else {"ERROR: Mod package [$($modItem.modName)] is not a .zip archive [$($dlFileTestRequest.Headers.'Content-Disposition')]. Please contact the mod developer and ask to provide .zip archive as last file in list of downloads."}
+                    Update-Window -Control StatusBarText -Property Text -Value "$DLTESTERRCUSTOM"
+                    Update-Window -Control StatusBarText -Property Tooltip -Value "$DLTESTERRCUSTOM"
+                    Break
+                }
+
+                Update-Window -Control ProgressBar -Property "Value" -Value 68
                 Update-Window -Control StatusBarText -Property Text -Value "Downloading [$($modItem.modName)] mod..."
                 Invoke-WebRequest -Uri $modItem.ModDownloadLink -OutFile $outFilePath -WebSession $syncHash.mwp -UseBasicParsing -ErrorAction SilentlyContinue -ErrorVariable DLERR
-
                 if (-not (Test-Path -Path $outFilePath -PathType Leaf)) {
                     Update-Window -Control ProgressBar -Property "Background" -Value "#FFEA8A00"
                     Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF0000"
@@ -604,8 +618,8 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                         if ((Test-Path -Path "$env:USERPROFILE\Documents\Teardown\mods\$wpnMod") -eq $false) {
                             Update-Window -Control ProgressBar -Property "Background" -Value "#FFEA8A00"
                             Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF0000"
-                            Update-Window -Control StatusBarText -Property Text -Value "ERROR: Mod folder [$("$env:USERPROFILE\Documents\Teardown\mods\$wpnMod")] was not detected after zip archive extraction to mods folder. Please create GitHub issue. Was the archive not a .zip file?"
-                            Update-Window -Control StatusBarText -Property Tooltip -Value "ERROR: Mod folder [$("$env:USERPROFILE\Documents\Teardown\mods\$wpnMod")] was not detected after zip archive extraction to mods folder. Please create GitHub issue. Was the archive not a .zip file?"
+                            Update-Window -Control StatusBarText -Property Text -Value "ERROR: Mod folder [$("$env:USERPROFILE\Documents\Teardown\mods\$wpnMod")] was not detected after zip archive extraction to mods folder. Please create GitHub issue."
+                            Update-Window -Control StatusBarText -Property Tooltip -Value "ERROR: Mod folder [$("$env:USERPROFILE\Documents\Teardown\mods\$wpnMod")] was not detected after zip archive extraction to mods folder. Please create GitHub issue."
                             Break
                         }
 
@@ -630,8 +644,8 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                     if ((Test-Path -Path $modItem.ModPath) -eq $false) {
                         Update-Window -Control ProgressBar -Property "Background" -Value "#FFEA8A00"
                         Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF0000"
-                        Update-Window -Control StatusBarText -Property Text -Value "ERROR: Mod folder [$($modItem.ModPath)] was not detected after zip archive extraction to mods folder. Please create GitHub issue. Was the archive not a .zip file?"
-                        Update-Window -Control StatusBarText -Property Tooltip -Value "ERROR: Mod folder [$("$env:USERPROFILE\Documents\Teardown\mods\$wpnMod")] was not detected after zip archive extraction to mods folder. Please create GitHub issue. Was the archive not a .zip file?"
+                        Update-Window -Control StatusBarText -Property Text -Value "ERROR: Mod folder [$($modItem.ModPath)] was not detected after zip archive extraction to mods folder. Please create GitHub issue."
+                        Update-Window -Control StatusBarText -Property Tooltip -Value "ERROR: Mod folder [$("$env:USERPROFILE\Documents\Teardown\mods\$wpnMod")] was not detected after zip archive extraction to mods folder. Please create GitHub issue."
                         Break
                     }
 
