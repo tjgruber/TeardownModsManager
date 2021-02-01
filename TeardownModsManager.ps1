@@ -376,6 +376,8 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
     $syncHash.UpdateSelectedMod.Add_Click({
 
         Update-Window -Control ProgressBar -Property "Value" -Value 0
+        Update-Window -Control ProgressBar -Property "Background" -Value "#FFE6E6E6"
+        Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF06B025"
 
         if (-not ($syncHash.ModsListDataGrid.SelectedCells | Select-Object -First 1).Item) {
             Update-Window -Control StatusBarText -Property Text -Value "No mod selected. Please select a mod and try again!"
@@ -679,6 +681,9 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
 
     $syncHash.ReloadModList.Add_Click({
 
+        Update-Window -Control ProgressBar -Property "Background" -Value "#FFE6E6E6"
+        Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF06B025"
+
         $syncHash.ModsListDataGrid.Visibility = "Hidden"
 
         Invoke-TablePrep
@@ -719,6 +724,9 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
 
     $syncHash.UpdateAllMods.Add_Click({
 
+        Update-Window -Control ProgressBar -Property "Background" -Value "#FFE6E6E6"
+        Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF06B025"
+
         Update-Window -Control StatusBarText -Property Text -Value "This button is not yet functional. Ready..."
 
     })
@@ -736,6 +744,9 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
     #############################################
 
     $syncHash.DeleteSelectedMod.Add_Click({
+
+        Update-Window -Control ProgressBar -Property "Background" -Value "#FFE6E6E6"
+        Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF06B025"
 
         Update-Window -Control StatusBarText -Property Text -Value "This button is not yet functional. Ready..."
 
@@ -755,6 +766,9 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
 
     $syncHash.BackupAllMods.Add_Click({
 
+        Update-Window -Control ProgressBar -Property "Background" -Value "#FFE6E6E6"
+        Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF06B025"
+
         Update-Window -Control StatusBarText -Property Text -Value "This button is not yet functional. Ready..."
 
     })
@@ -772,6 +786,9 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
     #############################################
 
     $syncHash.SignInButton.Add_Click({
+
+        Update-Window -Control ProgressBar -Property "Background" -Value "#FFE6E6E6"
+        Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF06B025"
 
         Update-Window -Control StatusBarText -Property Text -Value "This button is not yet functional. Ready..."
 
