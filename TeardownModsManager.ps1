@@ -530,7 +530,6 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
 
                 $outFile = "$($modItem.modName).zip"
                 $newDir = New-Item -Path "$env:TEMP\TeardownMods" -ItemType Directory -Force
-                $extractionTestPath = "$($newDir.FullName)\$($modItem.modName)"
                 $outFilePath = "$env:TEMP\TeardownMods\$outFile"
                 Update-Window -Control ProgressBar -Property "Value" -Value 58
 
