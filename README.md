@@ -30,6 +30,9 @@ For now, this script only works if mods are in default location.
 
 Make sure to back up your mods location. By default, this is your `Documents\Teardown\mods` folder. Do this manually until I implement this function.
 
+**Note:**
+  > When a mod developer fixes naming consistency of a mod that was prevously inconsistent, you may get an error saying the mod could not be found after extraction. This is expected. Try reloading mod list, and trying again, as the error is correct, but it still likely updated just fine.
+
 ## Mod Compatibility
 Mod devs: to help ensure mod compatibility with Teardown Mods Manager...
 As a mod creator or developer, the following practices can help ensure mod compatibility with Teardown Mods Manager:

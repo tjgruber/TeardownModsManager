@@ -301,7 +301,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                                 <TabItem Header="Installed Mods Tab" Height="35" VerticalAlignment="Top" TextOptions.TextFormattingMode="Display" FontSize="14">
                                     <GroupBox Header="Installed Mods Tab..." FontSize="16">
                                         <ScrollViewer HorizontalScrollBarVisibility="Auto">
-                                            <TextBlock ><Run FontWeight="Normal" FontSize="14" Text="    1.  For now, this script only works if mods are in default location."/><LineBreak/><Run FontWeight="Normal" FontSize="14" Text="    2.  Make sure to back up your mods location. By default, this is your 'Documents\Teardown\mods' folder. Do this manually until I implement this function."/></TextBlock>
+                                            <TextBlock ><Run FontWeight="Normal" FontSize="14" Text="    1.  For now, this script only works if mods are in default location."/><LineBreak/><Run FontWeight="Normal" FontSize="14" Text="    2.  Make sure to back up your mods location. By default, this is your 'Documents\Teardown\mods' folder. Do this manually until I implement this function."/><LineBreak/><Run FontWeight="Normal" FontSize="14" Text="    3.  When a mod developer fixes naming consistency of a mod that was prevously inconsistent, you may get an error saying the mod could not be found after extraction. This is expected. Try reloading mod list, and trying again, as the error is correct, but it still likely updated just fine."/></TextBlock>
                                         </ScrollViewer>
                                     </GroupBox>
                                 </TabItem>
