@@ -1,4 +1,4 @@
-<# TeardownModsManager | by Timothy Gruber
+<# Teardown Mods Manager v1.2.1 | by Timothy Gruber
 
 Designed and written by Timothy Gruber:
     https://timothygruber.com
@@ -11,7 +11,7 @@ $myWindowsID = [System.Security.Principal.WindowsIdentity]::GetCurrent()
 $myWindowsPrincipal = New-Object System.Security.Principal.WindowsPrincipal($myWindowsID)
 $adminRole = [System.Security.Principal.WindowsBuiltInRole]::Administrator
 if ($myWindowsPrincipal.IsInRole($adminRole)) {
-    $Host.UI.RawUI.WindowTitle = "Teardown Mods Manager | by Timothy Gruber"
+    $Host.UI.RawUI.WindowTitle = "Teardown Mods Manager v1.2.1 | by Timothy Gruber"
     $Host.UI.RawUI.BackgroundColor = "DarkBlue"
     Clear-Host
 } else {
@@ -20,7 +20,7 @@ if ($myWindowsPrincipal.IsInRole($adminRole)) {
 }
 #endregion
 
-Write-Host "Running Teardown Mods Manager | by Timothy Gruber...`n`nClosing this window will close Teardown Mods Manager.`n"
+Write-Host "Running Teardown Mods Manager v1.2.1 | by Timothy Gruber...`n`nClosing this window will close Teardown Mods Manager.`n"
 
 #############################################
 #############################################
@@ -198,7 +198,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
 <Window
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="Teardown Mods Manager v1.2.0 | by Timothy Gruber" Height="500" Width="958" ScrollViewer.VerticalScrollBarVisibility="Disabled" MinWidth="924" MinHeight="500">
+    Title="Teardown Mods Manager v1.2.1 | by Timothy Gruber" Height="500" Width="958" ScrollViewer.VerticalScrollBarVisibility="Disabled" MinWidth="924" MinHeight="500">
     <Grid>
         <DockPanel>
             <StatusBar DockPanel.Dock="Bottom">
@@ -286,7 +286,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                     <DockPanel Margin="0,5,0,0">
                         <GroupBox Header="about" DockPanel.Dock="Bottom" VerticalAlignment="Bottom" FontWeight="Bold">
                             <ScrollViewer>
-                                <TextBlock TextWrapping="Wrap" FontWeight="Normal"><Run FontWeight="Bold" Text="Created by: "/><Run Text="&#x9;Timothy Gruber&#xA;"/><Run FontWeight="Bold" Text="Website:&#x9;"/><Hyperlink NavigateUri="https://timothygruber.com/"><Run Text="TimothyGruber.com&#xA;"/></Hyperlink><Run FontWeight="Bold" Text="GitHub:&#x9;&#x9;"/><Hyperlink NavigateUri="https://github.com/tjgruber/TeardownModsManager"><Run Text="https://github.com/tjgruber/TeardownModsManager&#xA;"/></Hyperlink><Run FontWeight="Bold" Text="Version:"/><Run Text="&#x9;&#x9;v1.2.0-beta"/></TextBlock>
+                                <TextBlock TextWrapping="Wrap" FontWeight="Normal"><Run FontWeight="Bold" Text="Created by: "/><Run Text="&#x9;Timothy Gruber&#xA;"/><Run FontWeight="Bold" Text="Website:&#x9;"/><Hyperlink NavigateUri="https://timothygruber.com/"><Run Text="TimothyGruber.com&#xA;"/></Hyperlink><Run FontWeight="Bold" Text="GitHub:&#x9;&#x9;"/><Hyperlink NavigateUri="https://github.com/tjgruber/TeardownModsManager"><Run Text="https://github.com/tjgruber/TeardownModsManager&#xA;"/></Hyperlink><Run FontWeight="Bold" Text="Version:"/><Run Text="&#x9;&#x9;v1.2.1-beta"/></TextBlock>
                             </ScrollViewer>
                         </GroupBox>
                         <GroupBox Header="Help Menu:" FontWeight="Bold" FontSize="14">
@@ -711,12 +711,12 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
             $wrarApp = Get-InstalledApplication -Name "WinRAR"
             if ((Test-Path -Path "$($7zApp.InstallLocation)7z.exe") -eq $true) {
                 Update-Window -Control StatusBarText -Property Text -Value "7-Zip installation detected!..."
-                Set-Alias sz "$($7zApp.InstallLocation)7z.exe"
+                $7zExePath = "$($7zApp.InstallLocation)7z.exe"
                 $7zInstalled = $true
                 $zipOnly = $false
             } elseif ((Test-Path -Path "$($wrarApp.InstallLocation)UnRAR.exe") -eq $true) {
                 Update-Window -Control StatusBarText -Property Text -Value "WinRAR installation detected!..."
-                Set-Alias wr "$($wrarApp.InstallLocation)UnRAR.exe"
+                $wrarExePath =  "$($wrarApp.InstallLocation)UnRAR.exe"
                 $wrarInstalled = $true
                 $zipOnly = $false
             } else {
@@ -820,9 +820,13 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                     Update-Window -Control StatusBarText -Property Text -Value "Extracting [$outFilePath] to [$("$env:USERPROFILE\Documents\Teardown\mods\")]..."
 
                     if ($7zInstalled -eq $true) {
-                        sz x $outFilePath "-o$env:USERPROFILE\Documents\Teardown\mods" -y
-                    } elseif ($wrarInstalled -eq $true) {
-                        wr x -y $outFilePath "$env:USERPROFILE\Documents\Teardown\mods"
+                        $destinationPath = "$env:USERPROFILE\Documents\Teardown\mods"
+                        $argumentList = @('x', ('"'+$outFilePath+'"'), ('"-o'+$destinationPath+'"'), '-y')
+                        Start-Process -FilePath "$7zExePath" -ArgumentList $argumentList -WindowStyle Hidden -Wait
+                    } elseif ($wrarInstalled -eq $true -and $dlFileTestName -eq "rar") {
+                        $destinationPath = "$env:USERPROFILE\Documents\Teardown\mods"
+                        $argumentList = @("x -y", ('"'+$outFilePath+'"'), ('"'+$destinationPath+'"'))
+                        Start-Process -FilePath "$wrarExePath" -ArgumentList $argumentList -WindowStyle Hidden -Wait
                     } else {
                         Expand-Archive -Path $outFilePath -DestinationPath "$env:USERPROFILE\Documents\Teardown\mods" -Force -ErrorAction SilentlyContinue -ErrorVariable EXARERR
                     }
@@ -855,9 +859,13 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                     Update-Window -Control StatusBarText -Property Text -Value "Extracting [$outFilePath] to [$($modItem.ModPath)]..."
 
                     if ($7zInstalled -eq $true) {
-                        sz x $outFilePath "-o$env:USERPROFILE\Documents\Teardown\mods" -y
-                    } elseif ($wrarInstalled -eq $true) {
-                        wr x -y $outFilePath "$env:USERPROFILE\Documents\Teardown\mods"
+                        $destinationPath = "$env:USERPROFILE\Documents\Teardown\mods"
+                        $argumentList = @('x', ('"'+$outFilePath+'"'), ('"-o'+$destinationPath+'"'), '-y')
+                        Start-Process -FilePath "$7zExePath" -ArgumentList $argumentList -WindowStyle Hidden -Wait
+                    } elseif ($wrarInstalled -eq $true -and $dlFileTestName -eq "rar") {
+                        $destinationPath = "$env:USERPROFILE\Documents\Teardown\mods"
+                        $argumentList = @("x -y", ('"'+$outFilePath+'"'), ('"'+$destinationPath+'"'))
+                        Start-Process -FilePath "$wrarExePath" -ArgumentList $argumentList -WindowStyle Hidden -Wait
                     } else {
                         Expand-Archive -Path $outFilePath -DestinationPath "$env:USERPROFILE\Documents\Teardown\mods" -Force -ErrorAction SilentlyContinue -ErrorVariable EXARERR
                     }
@@ -867,7 +875,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                         Update-Window -Control ProgressBar -Property "Background" -Value "#FFEA8A00"
                         Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF0000"
                         Update-Window -Control StatusBarText -Property Text -Value "ERROR: Mod folder [$($modItem.ModPath)] was not detected after [$dlFileTestName] archive extraction to mods folder. Please create GitHub issue."
-                        Update-Window -Control StatusBarText -Property Tooltip -Value "ERROR: Mod folder [$("$env:USERPROFILE\Documents\Teardown\mods\$wpnMod")] was not detected after [$dlFileTestName] archive extraction to mods folder. Please create GitHub issue."
+                        Update-Window -Control StatusBarText -Property Tooltip -Value "ERROR: Mod folder [$($modItem.ModPath)] was not detected after [$dlFileTestName] archive extraction to mods folder. Please create GitHub issue."
                         Break
                     }
 
