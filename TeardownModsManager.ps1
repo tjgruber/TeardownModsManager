@@ -494,6 +494,187 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                 }
             }
 
+            Function Get-InstalledApplication {
+                <#
+                .SYNOPSIS
+                    Retrieves information about installed applications.
+                .DESCRIPTION
+                    Retrieves information about installed applications by querying the registry. You can specify an application name, a product code, or both.
+                    Returns information about application publisher, name & version, product code, uninstall string, install source, location, date, and application architecture.
+                .PARAMETER Name
+                    The name of the application to retrieve information for. Performs a contains match on the application display name by default.
+                .PARAMETER Exact
+                    Specifies that the named application must be matched using the exact name.
+                .PARAMETER WildCard
+                    Specifies that the named application must be matched using a wildcard search.
+                .PARAMETER RegEx
+                    Specifies that the named application must be matched using a regular expression search.
+                .PARAMETER ProductCode
+                    The product code of the application to retrieve information for.
+                .PARAMETER IncludeUpdatesAndHotfixes
+                    Include matches against updates and hotfixes in results.
+                .EXAMPLE
+                    Get-InstalledApplication -Name 'Adobe Flash'
+                .EXAMPLE
+                    Get-InstalledApplication -ProductCode '{1AD147D0-BE0E-3D6C-AC11-64F6DC4163F1}'
+                .NOTES
+                .LINK
+                    http://psappdeploytoolkit.com
+                #>
+                    [CmdletBinding()]
+                    Param (
+                        [Parameter(Mandatory=$false)]
+                        [ValidateNotNullorEmpty()]
+                        [string[]]$Name,
+                        [Parameter(Mandatory=$false)]
+                        [switch]$Exact = $false,
+                        [Parameter(Mandatory=$false)]
+                        [switch]$WildCard = $false,
+                        [Parameter(Mandatory=$false)]
+                        [switch]$RegEx = $false,
+                        [Parameter(Mandatory=$false)]
+                        [ValidateNotNullorEmpty()]
+                        [string]$ProductCode,
+                        [Parameter(Mandatory=$false)]
+                        [switch]$IncludeUpdatesAndHotfixes
+                    )
+                
+                    Begin {
+                        #  Get the OS Architecture
+                        [boolean]$Is64Bit = [boolean]((Get-WmiObject -Class 'Win32_Processor' -ErrorAction 'SilentlyContinue' | Where-Object { $_.DeviceID -eq 'CPU0' } | Select-Object -ExpandProperty 'AddressWidth') -eq 64)
+                        If ($Is64Bit) { [string]$envOSArchitecture = '64-bit' } Else { [string]$envOSArchitecture = '32-bit' }
+                
+                        ## Variables: Current Process Architecture
+                        [boolean]$Is64BitProcess = [boolean]([IntPtr]::Size -eq 8)
+                        If ($Is64BitProcess) { [string]$psArchitecture = 'x64' } Else { [string]$psArchitecture = 'x86' }
+                
+                
+                        ## Variables: Registry Keys
+                        #  Registry keys for native and WOW64 applications
+                        [string[]]$regKeyApplications = 'HKLM:SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall','HKLM:SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall'
+                        If ($is64Bit) {
+                            [string]$regKeyLotusNotes = 'HKLM:SOFTWARE\Wow6432Node\Lotus\Notes'
+                        }
+                        Else {
+                            [string]$regKeyLotusNotes = 'HKLM:SOFTWARE\Lotus\Notes'
+                        }
+                        [string]$regKeyAppExecution = 'HKLM:SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options'
+                    }
+                    Process {
+                        ## Enumerate the installed applications from the registry for applications that have the "DisplayName" property
+                        [psobject[]]$regKeyApplication = @()
+                        ForEach ($regKey in $regKeyApplications) {
+                            If (Test-Path -LiteralPath $regKey -ErrorAction 'SilentlyContinue' -ErrorVariable '+ErrorUninstallKeyPath') {
+                                [psobject[]]$UninstallKeyApps = Get-ChildItem -LiteralPath $regKey -ErrorAction 'SilentlyContinue' -ErrorVariable '+ErrorUninstallKeyPath'
+                                ForEach ($UninstallKeyApp in $UninstallKeyApps) {
+                                    Try {
+                                        [psobject]$regKeyApplicationProps = Get-ItemProperty -LiteralPath $UninstallKeyApp.PSPath -ErrorAction 'Stop'
+                                        If ($regKeyApplicationProps.DisplayName) { [psobject[]]$regKeyApplication += $regKeyApplicationProps }
+                                    }
+                                    Catch{
+                                        Continue
+                                    }
+                                }
+                            }
+                        }
+                
+                        ## Create a custom object with the desired properties for the installed applications and sanitize property details
+                        [psobject[]]$installedApplication = @()
+                        ForEach ($regKeyApp in $regKeyApplication) {
+                            Try {
+                                [string]$appDisplayName = ''
+                                [string]$appDisplayVersion = ''
+                                [string]$appPublisher = ''
+                
+                                ## Bypass any updates or hotfixes
+                                If (-not $IncludeUpdatesAndHotfixes) {
+                                    If ($regKeyApp.DisplayName -match '(?i)kb\d+') { Continue }
+                                    If ($regKeyApp.DisplayName -match 'Cumulative Update') { Continue }
+                                    If ($regKeyApp.DisplayName -match 'Security Update') { Continue }
+                                    If ($regKeyApp.DisplayName -match 'Hotfix') { Continue }
+                                }
+                
+                                ## Remove any control characters which may interfere with logging and creating file path names from these variables
+                                $illegalChars = [string][System.IO.Path]::GetInvalidFileNameChars()
+                                $appDisplayName = $regKeyApp.DisplayName -replace $illegalChars,''
+                                $appDisplayVersion = $regKeyApp.DisplayVersion -replace $illegalChars,''
+                                $appPublisher = $regKeyApp.Publisher -replace $illegalChars,''
+                
+                
+                                ## Determine if application is a 64-bit application
+                                [boolean]$Is64BitApp = If (($is64Bit) -and ($regKeyApp.PSPath -notmatch '^Microsoft\.PowerShell\.Core\\Registry::HKEY_LOCAL_MACHINE\\SOFTWARE\\Wow6432Node')) { $true } Else { $false }
+                
+                                If ($ProductCode) {
+                                    ## Verify if there is a match with the product code passed to the script
+                                    If ($regKeyApp.PSChildName -match [regex]::Escape($productCode)) {
+                                        $installedApplication += New-Object -TypeName 'PSObject' -Property @{
+                                            UninstallSubkey = $regKeyApp.PSChildName
+                                            ProductCode = If ($regKeyApp.PSChildName -match $MSIProductCodeRegExPattern) { $regKeyApp.PSChildName } Else { [string]::Empty }
+                                            DisplayName = $appDisplayName
+                                            DisplayVersion = $appDisplayVersion
+                                            UninstallString = $regKeyApp.UninstallString
+                                            InstallSource = $regKeyApp.InstallSource
+                                            InstallLocation = $regKeyApp.InstallLocation
+                                            InstallDate = $regKeyApp.InstallDate
+                                            Publisher = $appPublisher
+                                            Is64BitApplication = $Is64BitApp
+                                        }
+                                    }
+                                }
+                
+                                If ($name) {
+                                    ## Verify if there is a match with the application name(s) passed to the script
+                                    ForEach ($application in $Name) {
+                                        $applicationMatched = $false
+                                        If ($exact) {
+                                            #  Check for an exact application name match
+                                            If ($regKeyApp.DisplayName -eq $application) {
+                                                $applicationMatched = $true
+                                            }
+                                        }
+                                        ElseIf ($WildCard) {
+                                            #  Check for wildcard application name match
+                                            If ($regKeyApp.DisplayName -like $application) {
+                                                $applicationMatched = $true
+                                            }
+                                        }
+                                        ElseIf ($RegEx) {
+                                            #  Check for a regex application name match
+                                            If ($regKeyApp.DisplayName -match $application) {
+                                                $applicationMatched = $true
+                                            }
+                                        }
+                                        #  Check for a contains application name match
+                                        ElseIf ($regKeyApp.DisplayName -match [regex]::Escape($application)) {
+                                            $applicationMatched = $true
+                                        }
+                
+                                        If ($applicationMatched) {
+                                            $installedApplication += New-Object -TypeName 'PSObject' -Property @{
+                                                UninstallSubkey = $regKeyApp.PSChildName
+                                                ProductCode = If ($regKeyApp.PSChildName -match $MSIProductCodeRegExPattern) { $regKeyApp.PSChildName } Else { [string]::Empty }
+                                                DisplayName = $appDisplayName
+                                                DisplayVersion = $appDisplayVersion
+                                                UninstallString = $regKeyApp.UninstallString
+                                                InstallSource = $regKeyApp.InstallSource
+                                                InstallLocation = $regKeyApp.InstallLocation
+                                                InstallDate = $regKeyApp.InstallDate
+                                                Publisher = $appPublisher
+                                                Is64BitApplication = $Is64BitApp
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            Catch {
+                                Continue
+                            }
+                        }
+                        Write-Output -InputObject $installedApplication
+                    }
+                    End {}
+                }
+
             Function Update-Window {
                 Param (
                     $Control,
@@ -535,23 +716,38 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                 ($syncHash.dataTable.Rows | Where-Object {$_.ModName -eq $modItem.modName}).ModWebPage = $modItem.ModWebPage
                 ($syncHash.dataTable.Rows | Where-Object {$_.ModName -eq $modItem.modName}).ModDownloadLink = $modItem.ModDownloadLink
 
-                $outFile = "$($modItem.modName).zip"
-                $newDir = New-Item -Path "$env:TEMP\TeardownMods" -ItemType Directory -Force
-                $outFilePath = "$env:TEMP\TeardownMods\$outFile"
-                Update-Window -Control ProgressBar -Property "Value" -Value 58
+                # Check if 7-Zip or WinRAR is installed:
+                $7zApp = Get-InstalledApplication -Name "7-Zip"
+                $wrarApp = Get-InstalledApplication -Name "WinRAR"
+                if ((Test-Path -Path "$($7zApp.InstallLocation)7z.exe") -eq $true) {
+                    Set-Alias sz "$($7zApp.InstallLocation)7z.exe"
+                    $7zInstalled = $true
+                    $zipOnly = $false
+                } elseif ((Test-Path -Path "$($wrarApp.InstallLocation)UnRAR.exe") -eq $true) {
+                    Set-Alias wr "$($wrarApp.InstallLocation)UnRAR.exe"
+                    $wrarInstalled = $true
+                    $zipOnly = $false
+                } else {
+                    $zipOnly = $true
+                }
 
-                # Test download package file, verify is .zip
+                # Test download package archive type, verify if .zip only:
                 Update-Window -Control StatusBarText -Property Text -Value "Testing [$($modItem.modName)] download link..."
                 $dlFileTestRequest = Invoke-WebRequest -Uri $modItem.ModDownloadLink -Method Head -WebSession $syncHash.mwp -UseBasicParsing -ErrorAction SilentlyContinue -ErrorVariable DLTESTERR
                 $dlFileTestName = $dlFileTestRequest.Headers.'Content-Disposition' -split "\." -replace """",'' | Select-Object -Last 1
-                if ($dlFileTestName -ne "zip") {
+                if ($dlFileTestName -ne "zip" -and $zipOnly -eq $true) {
                     Update-Window -Control ProgressBar -Property "Background" -Value "#FFEA8A00"
                     Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF0000"
-                    $DLTESTERRCUSTOM = if ($DLTESTERR) {"[$($dlFileTestRequest.Headers.'Content-Disposition')] - $DLTESTERR"} else {"ERROR: Mod package [$($modItem.modName)] is not a .zip archive [$($dlFileTestRequest.Headers.'Content-Disposition')]. Please contact the mod developer and ask to provide .zip archive as last file in list of downloads."}
+                    $DLTESTERRCUSTOM = if ($DLTESTERR) {"ERROR: Something happened, try updating mod again! - [$($dlFileTestRequest.Headers.'Content-Disposition')] - $DLTESTERR"} else {"ERROR: Mod package [$($modItem.modName)] is not a .zip archive [$($dlFileTestRequest.Headers.'Content-Disposition')]. Please install 7-Zip or WinRAR!"}
                     Update-Window -Control StatusBarText -Property Text -Value "$DLTESTERRCUSTOM"
                     Update-Window -Control StatusBarText -Property Tooltip -Value "$DLTESTERRCUSTOM"
                     Break
                 }
+
+                $outFile = "$($modItem.modName).$dlFileTestName"
+                $newDir = New-Item -Path "$env:TEMP\TeardownMods" -ItemType Directory -Force
+                $outFilePath = "$env:TEMP\TeardownMods\$outFile"
+                Update-Window -Control ProgressBar -Property "Value" -Value 58
 
                 Update-Window -Control ProgressBar -Property "Value" -Value 68
                 Update-Window -Control StatusBarText -Property Text -Value "Downloading [$($modItem.modName)] mod..."
@@ -616,7 +812,13 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
 
                     Update-Window -Control StatusBarText -Property Text -Value "Extracting [$outFilePath] to [$("$env:USERPROFILE\Documents\Teardown\mods\")]..."
 
-                    Expand-Archive -Path $outFilePath -DestinationPath "$env:USERPROFILE\Documents\Teardown\mods" -Force -ErrorAction SilentlyContinue -ErrorVariable EXARERR
+                    if ($7zInstalled -eq $true) {
+                        sz x $outFilePath "-o$env:USERPROFILE\Documents\Teardown\mods" -y
+                    } elseif ($wrarInstalled -eq $true) {
+                        wr x -y $outFilePath "$env:USERPROFILE\Documents\Teardown\mods"
+                    } else {
+                        Expand-Archive -Path $outFilePath -DestinationPath "$env:USERPROFILE\Documents\Teardown\mods" -Force -ErrorAction SilentlyContinue -ErrorVariable EXARERR
+                    }
 
                     foreach ($wpnMod in $CrestaWpnPckList) {
 
@@ -624,8 +826,8 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                         if ((Test-Path -Path "$env:USERPROFILE\Documents\Teardown\mods\$wpnMod") -eq $false) {
                             Update-Window -Control ProgressBar -Property "Background" -Value "#FFEA8A00"
                             Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF0000"
-                            Update-Window -Control StatusBarText -Property Text -Value "ERROR: Mod folder [$("$env:USERPROFILE\Documents\Teardown\mods\$wpnMod")] was not detected after zip archive extraction to mods folder. Please create GitHub issue."
-                            Update-Window -Control StatusBarText -Property Tooltip -Value "ERROR: Mod folder [$("$env:USERPROFILE\Documents\Teardown\mods\$wpnMod")] was not detected after zip archive extraction to mods folder. Please create GitHub issue."
+                            Update-Window -Control StatusBarText -Property Text -Value "ERROR: Mod folder [$("$env:USERPROFILE\Documents\Teardown\mods\$wpnMod")] was not detected after [$dlFileTestName] archive extraction to mods folder. Please create GitHub issue."
+                            Update-Window -Control StatusBarText -Property Tooltip -Value "ERROR: Mod folder [$("$env:USERPROFILE\Documents\Teardown\mods\$wpnMod")] was not detected after [$dlFileTestName] archive extraction to mods folder. Please create GitHub issue."
                             Break
                         }
 
@@ -644,14 +846,21 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                     }
 
                     Update-Window -Control StatusBarText -Property Text -Value "Extracting [$outFilePath] to [$($modItem.ModPath)]..."
+
+                    if ($7zInstalled -eq $true) {
+                        sz x $outFilePath "-o$env:USERPROFILE\Documents\Teardown\mods" -y
+                    } elseif ($wrarInstalled -eq $true) {
+                        wr x -y $outFilePath "$env:USERPROFILE\Documents\Teardown\mods"
+                    } else {
+                        Expand-Archive -Path $outFilePath -DestinationPath "$env:USERPROFILE\Documents\Teardown\mods" -Force -ErrorAction SilentlyContinue -ErrorVariable EXARERR
+                    }
                 
-                    Expand-Archive -Path $outFilePath -DestinationPath "$env:USERPROFILE\Documents\Teardown\mods" -Force -ErrorAction SilentlyContinue -ErrorVariable EXARERR
                     # Verify new mod has been successfully extracted to mods folder:
                     if ((Test-Path -Path $modItem.ModPath) -eq $false) {
                         Update-Window -Control ProgressBar -Property "Background" -Value "#FFEA8A00"
                         Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF0000"
-                        Update-Window -Control StatusBarText -Property Text -Value "ERROR: Mod folder [$($modItem.ModPath)] was not detected after zip archive extraction to mods folder. Please create GitHub issue."
-                        Update-Window -Control StatusBarText -Property Tooltip -Value "ERROR: Mod folder [$("$env:USERPROFILE\Documents\Teardown\mods\$wpnMod")] was not detected after zip archive extraction to mods folder. Please create GitHub issue."
+                        Update-Window -Control StatusBarText -Property Text -Value "ERROR: Mod folder [$($modItem.ModPath)] was not detected after [$dlFileTestName] archive extraction to mods folder. Please create GitHub issue."
+                        Update-Window -Control StatusBarText -Property Tooltip -Value "ERROR: Mod folder [$("$env:USERPROFILE\Documents\Teardown\mods\$wpnMod")] was not detected after [$dlFileTestName] archive extraction to mods folder. Please create GitHub issue."
                         Break
                     }
 
@@ -666,13 +875,13 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                     Break
                 }
 
-                Update-Window -Control StatusBarText -Property Text -Value "Zip archive extracted..."
+                Update-Window -Control StatusBarText -Property Text -Value "[$dlFileTestName] archive extracted..."
 
                 # Clean up the mod archive download from temp folder:
                 Remove-Item -Path $outFilePath -Force
 
                 Update-Window -Control ProgressBar -Property "Value" -Value 100
-                Update-Window -Control StatusBarText -Property Text -Value "[$($modItem.modName)] mod update finished successfully! Ready..."
+                Update-Window -Control StatusBarText -Property Text -Value "Finished updating [$($modItem.modName)] mod successfully! Ready..."
 
             }
 
@@ -897,6 +1106,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
     $UpdateSelectedModRunspace.Dispose()
     $BackupAllModsRunspace.Close()
     $BackupAllModsRunspace.Dispose()
+    #Get-Runspace | Where-Object { $_.RunspaceAvailability -eq "Available" } | ForEach-Object Close
 })
 
 $manWindowRunspaceScript.Runspace = $manWindowRunspace
