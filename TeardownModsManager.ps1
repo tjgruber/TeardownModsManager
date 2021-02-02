@@ -198,7 +198,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
 <Window
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="Teardown Mods Manager v1.1.0 | by Timothy Gruber" Height="500" Width="958" ScrollViewer.VerticalScrollBarVisibility="Disabled" MinWidth="924" MinHeight="500">
+    Title="Teardown Mods Manager v1.2.0 | by Timothy Gruber" Height="500" Width="958" ScrollViewer.VerticalScrollBarVisibility="Disabled" MinWidth="924" MinHeight="500">
     <Grid>
         <DockPanel>
             <StatusBar DockPanel.Dock="Bottom">
@@ -286,7 +286,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                     <DockPanel Margin="0,5,0,0">
                         <GroupBox Header="about" DockPanel.Dock="Bottom" VerticalAlignment="Bottom" FontWeight="Bold">
                             <ScrollViewer>
-                                <TextBlock TextWrapping="Wrap" FontWeight="Normal"><Run FontWeight="Bold" Text="Created by: "/><Run Text="&#x9;Timothy Gruber&#xA;"/><Run FontWeight="Bold" Text="Website:&#x9;"/><Hyperlink NavigateUri="https://timothygruber.com/"><Run Text="TimothyGruber.com&#xA;"/></Hyperlink><Run FontWeight="Bold" Text="GitHub:&#x9;&#x9;"/><Hyperlink NavigateUri="https://github.com/tjgruber/TeardownModsManager"><Run Text="https://github.com/tjgruber/TeardownModsManager&#xA;"/></Hyperlink><Run FontWeight="Bold" Text="Version:"/><Run Text="&#x9;&#x9;v1.1.0-alpha"/></TextBlock>
+                                <TextBlock TextWrapping="Wrap" FontWeight="Normal"><Run FontWeight="Bold" Text="Created by: "/><Run Text="&#x9;Timothy Gruber&#xA;"/><Run FontWeight="Bold" Text="Website:&#x9;"/><Hyperlink NavigateUri="https://timothygruber.com/"><Run Text="TimothyGruber.com&#xA;"/></Hyperlink><Run FontWeight="Bold" Text="GitHub:&#x9;&#x9;"/><Hyperlink NavigateUri="https://github.com/tjgruber/TeardownModsManager"><Run Text="https://github.com/tjgruber/TeardownModsManager&#xA;"/></Hyperlink><Run FontWeight="Bold" Text="Version:"/><Run Text="&#x9;&#x9;v1.2.0-beta"/></TextBlock>
                             </ScrollViewer>
                         </GroupBox>
                         <GroupBox Header="Help Menu:" FontWeight="Bold" FontSize="14">
@@ -315,7 +315,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                                 <TabItem Header="Mod Compatibility" Height="35" VerticalAlignment="Top" TextOptions.TextFormattingMode="Display" FontSize="14">
                                     <GroupBox Header="Mod devs: to help ensure mod compatibility with Teardown Mods Manager..." FontSize="16">
                                         <ScrollViewer HorizontalScrollBarVisibility="Auto">
-                                            <TextBlock ><Run FontWeight="Normal" FontSize="14" Text="Teardown Mods Manager now supports updating mods archived with 7-Zip (.7z), WinRAR (.rar), and Zip (.zip)!"/><LineBreak/><TextBlock ><Run FontWeight="Normal" FontSize="14" Text=" "/><LineBreak/><TextBlock ><Run FontWeight="Normal" FontSize="14" Text="    1.  Mod name consistency is the biggest factor in your mod working with this app."/><LineBreak/><Run FontWeight="Normal" FontSize="14" Text="    2.  Ensure mod 'name = ' in mod info.txt matches the name of your mod at teardownmods.com."/><LineBreak/><Run FontWeight="Normal" FontSize="14" Text="    3.  Ensure mod name matches folder name, i.e. 'Documents\Teardown\mods\mod name'."/><LineBreak/><Run FontWeight="Normal" FontSize="14" Text="    4.  Ensure 'version = ' in mod info.txt is current released version at teardownmods.com. Something meaningful to the most amount of people, such as '2021.01.31.x' or '1.5.2' for example."/><LineBreak/><Run FontWeight="Normal" FontSize="14" Text="    5.  Ensure the last file in the downloads list at teardownmods.com for the mod is the regular default / preferred mod."/><LineBreak/><Run FontWeight="Normal" FontSize="14" Text="    6.  Ensure name of mod folder is properly archived: so extracting to Teardown\mods will result in Teardown\mods\modName"/><LineBreak/><Run FontWeight="Normal" FontSize="14" Text="    7.  Instead of having multiple mods/maps, use mod options to control lighting, time of day, weather, etc."/><LineBreak/><Run FontWeight="Normal" FontSize="14" Text="    8.  Try to package mods together in the same mod folder that are part of the same mod package. That way I don't have to hard code a workaround."/></TextBlock>
+                                            <TextBlock ><Run FontWeight="Normal" FontSize="14" Text="Teardown Mods Manager now supports updating mods archived with 7-Zip (.7z), WinRAR (.rar), and Zip (.zip)!"/><LineBreak/><Run FontWeight="Normal" FontSize="14" Text=" "/><LineBreak/><Run FontWeight="Normal" FontSize="14" Text="    1.  Mod name consistency is the biggest factor in your mod working with this app."/><LineBreak/><Run FontWeight="Normal" FontSize="14" Text="    2.  Ensure mod 'name = ' in mod info.txt matches the name of your mod at teardownmods.com."/><LineBreak/><Run FontWeight="Normal" FontSize="14" Text="    3.  Ensure mod name matches folder name, i.e. 'Documents\Teardown\mods\mod name'."/><LineBreak/><Run FontWeight="Normal" FontSize="14" Text="    4.  Ensure 'version = ' in mod info.txt is current released version at teardownmods.com. Something meaningful to the most amount of people, such as '2021.01.31.x' or '1.5.2' for example."/><LineBreak/><Run FontWeight="Normal" FontSize="14" Text="    5.  Ensure the last file in the downloads list at teardownmods.com for the mod is the regular default / preferred mod."/><LineBreak/><Run FontWeight="Normal" FontSize="14" Text="    6.  Ensure name of mod folder is properly archived: so extracting to Teardown\mods will result in Teardown\mods\modName"/><LineBreak/><Run FontWeight="Normal" FontSize="14" Text="    7.  Instead of having multiple mods/maps, use mod options to control lighting, time of day, weather, etc."/><LineBreak/><Run FontWeight="Normal" FontSize="14" Text="    8.  Try to package mods together in the same mod folder that are part of the same mod package. That way I don't have to hard code a workaround."/></TextBlock>
                                         </ScrollViewer>
                                     </GroupBox>
                                 </TabItem>
@@ -445,7 +445,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                             }
                         }
 
-                        Update-Window -Control ProgressBar -Property "Value" -Value 40
+                        Update-Window -Control ProgressBar -Property "Value" -Value 36
                     
                         if ($modWebLink) {
                             #Write-Host "`tAccessing mod web page at teardownmods.com at: [$modWebLink]"
@@ -705,6 +705,27 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
             #############################################
             #############################################
 
+            # Check if 7-Zip or WinRAR is installed:
+            Update-Window -Control StatusBarText -Property Text -Value "Checking if 7-Zip or WinRAR is installed on system..."
+            $7zApp = Get-InstalledApplication -Name "7-Zip"
+            $wrarApp = Get-InstalledApplication -Name "WinRAR"
+            if ((Test-Path -Path "$($7zApp.InstallLocation)7z.exe") -eq $true) {
+                Update-Window -Control StatusBarText -Property Text -Value "7-Zip installation detected!..."
+                Set-Alias sz "$($7zApp.InstallLocation)7z.exe"
+                $7zInstalled = $true
+                $zipOnly = $false
+            } elseif ((Test-Path -Path "$($wrarApp.InstallLocation)UnRAR.exe") -eq $true) {
+                Update-Window -Control StatusBarText -Property Text -Value "WinRAR installation detected!..."
+                Set-Alias wr "$($wrarApp.InstallLocation)UnRAR.exe"
+                $wrarInstalled = $true
+                $zipOnly = $false
+            } else {
+                Update-Window -Control StatusBarText -Property Text -Value "7-Zip or WinRAR was NOT detected as installed on system..."
+                $zipOnly = $true
+            }
+
+            Update-Window -Control ProgressBar -Property "Value" -Value 43
+
             #$allModsData = Get-ModData -allMods ($syncHash.allModsDeetz | Select-Object -First 3)
             $allModsData = Get-ModData -allMods ($syncHash.allModsDeetz | Where-Object -Property ModName -EQ (($syncHash.ModsListDataGrid.SelectedCells | Select-Object -First 1).Item.ModName))
 
@@ -715,27 +736,6 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
 
                 ($syncHash.dataTable.Rows | Where-Object {$_.ModName -eq $modItem.modName}).ModWebPage = $modItem.ModWebPage
                 ($syncHash.dataTable.Rows | Where-Object {$_.ModName -eq $modItem.modName}).ModDownloadLink = $modItem.ModDownloadLink
-
-                # Check if 7-Zip or WinRAR is installed:
-                Update-Window -Control StatusBarText -Property Text -Value "Checking if 7-Zip or WinRAR is installed on system..."
-                $7zApp = Get-InstalledApplication -Name "7-Zip"
-                $wrarApp = Get-InstalledApplication -Name "WinRAR"
-                if ((Test-Path -Path "$($7zApp.InstallLocation)7z.exe") -eq $true) {
-                    Update-Window -Control StatusBarText -Property Text -Value "7-Zip installation detected!..."
-                    Set-Alias sz "$($7zApp.InstallLocation)7z.exe"
-                    $7zInstalled = $true
-                    $zipOnly = $false
-                } elseif ((Test-Path -Path "$($wrarApp.InstallLocation)UnRAR.exe") -eq $true) {
-                    Update-Window -Control StatusBarText -Property Text -Value "WinRAR installation detected!..."
-                    Set-Alias wr "$($wrarApp.InstallLocation)UnRAR.exe"
-                    $wrarInstalled = $true
-                    $zipOnly = $false
-                } else {
-                    Update-Window -Control StatusBarText -Property Text -Value "7-Zip or WinRAR was NOT detected as installed on system..."
-                    $zipOnly = $true
-                }
-
-                Update-Window -Control ProgressBar -Property "Value" -Value 55
 
                 # Test download package archive type, verify if .zip only:
                 Update-Window -Control StatusBarText -Property Text -Value "Testing [$($modItem.modName)] download link for archive type..."
