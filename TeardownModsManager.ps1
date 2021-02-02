@@ -717,22 +717,28 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                 ($syncHash.dataTable.Rows | Where-Object {$_.ModName -eq $modItem.modName}).ModDownloadLink = $modItem.ModDownloadLink
 
                 # Check if 7-Zip or WinRAR is installed:
+                Update-Window -Control StatusBarText -Property Text -Value "Checking if 7-Zip or WinRAR is installed on system..."
                 $7zApp = Get-InstalledApplication -Name "7-Zip"
                 $wrarApp = Get-InstalledApplication -Name "WinRAR"
                 if ((Test-Path -Path "$($7zApp.InstallLocation)7z.exe") -eq $true) {
+                    Update-Window -Control StatusBarText -Property Text -Value "7-Zip installation detected!..."
                     Set-Alias sz "$($7zApp.InstallLocation)7z.exe"
                     $7zInstalled = $true
                     $zipOnly = $false
                 } elseif ((Test-Path -Path "$($wrarApp.InstallLocation)UnRAR.exe") -eq $true) {
+                    Update-Window -Control StatusBarText -Property Text -Value "WinRAR installation detected!..."
                     Set-Alias wr "$($wrarApp.InstallLocation)UnRAR.exe"
                     $wrarInstalled = $true
                     $zipOnly = $false
                 } else {
+                    Update-Window -Control StatusBarText -Property Text -Value "7-Zip or WinRAR was NOT detected as installed on system..."
                     $zipOnly = $true
                 }
 
+                Update-Window -Control ProgressBar -Property "Value" -Value 55
+
                 # Test download package archive type, verify if .zip only:
-                Update-Window -Control StatusBarText -Property Text -Value "Testing [$($modItem.modName)] download link..."
+                Update-Window -Control StatusBarText -Property Text -Value "Testing [$($modItem.modName)] download link for archive type..."
                 $dlFileTestRequest = Invoke-WebRequest -Uri $modItem.ModDownloadLink -Method Head -WebSession $syncHash.mwp -UseBasicParsing -ErrorAction SilentlyContinue -ErrorVariable DLTESTERR
                 $dlFileTestName = $dlFileTestRequest.Headers.'Content-Disposition' -split "\." -replace """",'' | Select-Object -Last 1
                 if ($dlFileTestName -ne "zip" -and $zipOnly -eq $true) {
@@ -747,6 +753,7 @@ $manWindowRunspaceScript = [PowerShell]::Create().AddScript({
                 $outFile = "$($modItem.modName).$dlFileTestName"
                 $newDir = New-Item -Path "$env:TEMP\TeardownMods" -ItemType Directory -Force
                 $outFilePath = "$env:TEMP\TeardownMods\$outFile"
+                Update-Window -Control StatusBarText -Property Text -Value "Package to download is detected as [.$dlFileTestName]"
                 Update-Window -Control ProgressBar -Property "Value" -Value 58
 
                 Update-Window -Control ProgressBar -Property "Value" -Value 68
