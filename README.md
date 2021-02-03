@@ -5,7 +5,7 @@ This is a work in progress, at least until Steam Workshop implementation in Tear
 
 If there are any issues, please create or report them here: https://github.com/tjgruber/TeardownModsManager/issues!
 
-![Demo1](images/TeardownModsManager_v1.0.0_Demo1.gif)
+![Demo2](images/TeardownModsManager_v1.2.1_Demo2.gif)
 
 ## How to use
 
@@ -43,7 +43,6 @@ This will back up your `Documents\Teardown\mods` folder to for example: `Documen
   > This process can take awhile depending on how big your mods folder is. It can take around 30 seconds per gig. In my test, it took about 32 seconds to back up a mods folder that is 1.4GB.
 
 ## Mod Compatibility
-Mod devs: to help ensure mod compatibility with Teardown Mods Manager...
 As a mod creator or developer, the following practices can help ensure mod compatibility with Teardown Mods Manager:
   1. Mod name consistency is the biggest factor in your mod working with this app.
   2. Ensure mod `name = ` in mod info.txt matches the name of your mod at teardownmods.com.
@@ -56,10 +55,10 @@ As a mod creator or developer, the following practices can help ensure mod compa
 
 ## Media
 
-![Demo2](images/TeardownModsManager_v1.0.0_Demo2.gif)
+![Demo1](images/TeardownModsManager_v1.2.1_Demo1.gif)
 
-![Screenshot1](images/Screenshot_1.png)
+![Demo3](images/TeardownModsManager_v1.2.1_Demo3.gif)
 
-![Screenshot2](images/Screenshot_2.png)
+![Screenshot4](images/Screenshot_4.png)
 
-![Screenshot3](images/Screenshot_3.png)
+![Screenshot5](images/Screenshot_5.png)
