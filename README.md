@@ -1,7 +1,8 @@
 # Teardown Mods Manager
 **Teardown Mods Manager** may be used to update, backup, and remove installed Teardown mods during the wait for Steam Workshop availability in Teardown 0.6, and possibly after.
 
-## Recent Changes (v2.0.0 --> v2.1.0)
+## Recent Changes (v2.0.0 --> v2.1.1)
+* Fixed missing variable that prevented some mods from properly being removed (v2.1.1)
 * Added feature to display and change current mods folder location; Mods list reloaded automatically after changing directory
 * Improved ModDir logic and basic mod validation. Requires info.txt to contain mod name or otherwise is ignored and not in mods list.
 * Increased main window default size

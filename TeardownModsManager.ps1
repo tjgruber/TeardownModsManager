@@ -1,4 +1,4 @@
-<# Teardown Mods Manager v2.1.0 | by Timothy Gruber
+<# Teardown Mods Manager v2.1.1 | by Timothy Gruber
 
 Designed and written by Timothy Gruber:
     https://timothygruber.com
@@ -11,7 +11,7 @@ $myWindowsID = [System.Security.Principal.WindowsIdentity]::GetCurrent()
 $myWindowsPrincipal = New-Object System.Security.Principal.WindowsPrincipal($myWindowsID)
 $adminRole = [System.Security.Principal.WindowsBuiltInRole]::Administrator
 if ($myWindowsPrincipal.IsInRole($adminRole)) {
-    $Host.UI.RawUI.WindowTitle = "Teardown Mods Manager v2.1.0 | by Timothy Gruber"
+    $Host.UI.RawUI.WindowTitle = "Teardown Mods Manager v2.1.1 | by Timothy Gruber"
     $Host.UI.RawUI.BackgroundColor = "DarkBlue"
     Clear-Host
 } else {
@@ -20,7 +20,7 @@ if ($myWindowsPrincipal.IsInRole($adminRole)) {
 }
 #endregion
 
-Write-Host "Running Teardown Mods Manager v2.1.0 | by Timothy Gruber...`n`nClosing this window will close Teardown Mods Manager.`n"
+Write-Host "Running Teardown Mods Manager v2.1.1 | by Timothy Gruber...`n`nClosing this window will close Teardown Mods Manager.`n"
 
 #  ███    ███  █████  ██ ███    ██     ██     ██ ██ ███    ██ ██████   ██████  ██     ██ 
 #  ████  ████ ██   ██ ██ ████   ██     ██     ██ ██ ████   ██ ██   ██ ██    ██ ██     ██ 
@@ -244,7 +244,7 @@ Log initialized: $(Get-Date)
 <Window
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="Teardown Mods Manager v2.1.0 | by Timothy Gruber" Height="540" Width="1000" ScrollViewer.VerticalScrollBarVisibility="Disabled" MinWidth="966" MinHeight="500">
+    Title="Teardown Mods Manager v2.1.1 | by Timothy Gruber" Height="540" Width="1000" ScrollViewer.VerticalScrollBarVisibility="Disabled" MinWidth="966" MinHeight="500">
     <Grid>
         <DockPanel>
             <StatusBar DockPanel.Dock="Bottom">
@@ -333,7 +333,7 @@ Log initialized: $(Get-Date)
                     <DockPanel Margin="0,5,0,0">
                         <GroupBox Header="about" DockPanel.Dock="Bottom" VerticalAlignment="Bottom" FontWeight="Bold">
                             <ScrollViewer>
-                                <TextBlock TextWrapping="Wrap" FontWeight="Normal"><Run FontWeight="Bold" Text="Created by: "/><Run Text="&#x9;Timothy Gruber&#xA;"/><Run FontWeight="Bold" Text="Website:&#x9;"/><Hyperlink NavigateUri="https://timothygruber.com/"><Run Text="TimothyGruber.com&#xA;"/></Hyperlink><Run FontWeight="Bold" Text="GitHub:&#x9;&#x9;"/><Hyperlink NavigateUri="https://github.com/tjgruber/TeardownModsManager"><Run Text="https://github.com/tjgruber/TeardownModsManager&#xA;"/></Hyperlink><Run FontWeight="Bold" Text="Version:"/><Run Text="&#x9;&#x9;v2.1.0"/></TextBlock>
+                                <TextBlock TextWrapping="Wrap" FontWeight="Normal"><Run FontWeight="Bold" Text="Created by: "/><Run Text="&#x9;Timothy Gruber&#xA;"/><Run FontWeight="Bold" Text="Website:&#x9;"/><Hyperlink NavigateUri="https://timothygruber.com/"><Run Text="TimothyGruber.com&#xA;"/></Hyperlink><Run FontWeight="Bold" Text="GitHub:&#x9;&#x9;"/><Hyperlink NavigateUri="https://github.com/tjgruber/TeardownModsManager"><Run Text="https://github.com/tjgruber/TeardownModsManager&#xA;"/></Hyperlink><Run FontWeight="Bold" Text="Version:"/><Run Text="&#x9;&#x9;v2.1.1"/></TextBlock>
                             </ScrollViewer>
                         </GroupBox>
                         <GroupBox Header="Help Menu:" FontWeight="Bold" FontSize="14">
@@ -1421,6 +1421,9 @@ Log initialized: $(Get-Date)
         Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF06B025"
         Update-Window -Control ProgressBar -Property "Value" -Value 0
 
+        # Defines the Teardown mods folder to use throughout below logic
+        $modsFolderPath = if ($syncHash.folderSelectDialog.SelectedPath) {$syncHash.folderSelectDialog.SelectedPath} else {"$env:USERPROFILE\Documents\Teardown\mods"}
+
         "Building mods list from selected cells" | Write-Log
         $selectedCells = foreach ($selectedCellRow in $syncHash.ModsListDataGrid.SelectedCells) {
             [PSCustomObject]@{
@@ -1684,7 +1687,7 @@ Log initialized: $(Get-Date)
         $SaveDialog.ShowDialog() | Out-Null
         $syncHash.tmmLog >> $SaveDialog.Filename
         if ($SaveDialog.Filename) {
-            [System.Windows.Forms.MessageBox]::Show("Logs exported at $($SaveDialog.Filename)","Log Export | Teardown Mods Manager v2.1.0")
+            [System.Windows.Forms.MessageBox]::Show("Logs exported at $($SaveDialog.Filename)","Log Export | Teardown Mods Manager v2.1.1")
             Update-Window -Control StatusBarText -Property Text -Value "Logs exported at $($SaveDialog.Filename)"
         } else {
             "Log export cancelled" | Write-Log
