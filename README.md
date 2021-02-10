@@ -9,7 +9,7 @@
 * Added additional help info
 * Other various code fixes and improvements
 
-## Recent Changes (v1.2.1 --> v2.0.0)
+## Previous Changes (v1.2.1 --> v2.0.0)
 Teardown Mods Manager is now fully functional, including the following recent changes:
 * No longer in beta status
 * Added "Update All Mods" functionality
@@ -31,6 +31,10 @@ Now fully functional, but still a work in progress, at least until Steam Worksho
 
 If there are any issues, please message me or preferrably, report them here: https://github.com/tjgruber/TeardownModsManager/issues!
 
+*new v2.1.0*
+![Screenshot1](images/Screenshot_3.png)
+
+*v2.0.0*
 ![Demo1](images/TeardownModsManager_v2.0.0_Demo1.gif)
 
 ## How to use
