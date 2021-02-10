@@ -1,7 +1,15 @@
 # Teardown Mods Manager
 **Teardown Mods Manager** may be used to update, backup, and remove installed Teardown mods during the wait for Steam Workshop availability in Teardown 0.6, and possibly after.
 
-## Recent Changes (v1.2.1 --> v2.0.0)
+## Recent Changes (v2.0.0 --> v2.1.0)
+* Added feature to display and change current mods folder location; Mods list reloaded automatically after changing directory
+* Improved ModDir logic and basic mod validation. Requires info.txt to contain mod name or otherwise is ignored and not in mods list.
+* Increased main window default size
+* Changed Exe to require elevation to allow non-default mods locations outside of user profile
+* Added additional help info
+* Other various code fixes and improvements
+
+## Previous Changes (v1.2.1 --> v2.0.0)
 Teardown Mods Manager is now fully functional, including the following recent changes:
 * No longer in beta status
 * Added "Update All Mods" functionality
@@ -23,6 +31,10 @@ Now fully functional, but still a work in progress, at least until Steam Worksho
 
 If there are any issues, please message me or preferrably, report them here: https://github.com/tjgruber/TeardownModsManager/issues!
 
+*new v2.1.0*
+![Screenshot1](images/Screenshot_3.png)
+
+*v2.0.0*
 ![Demo1](images/TeardownModsManager_v2.0.0_Demo1.gif)
 
 ## How to use
@@ -48,7 +60,8 @@ Select the mods you wish to update, then click the **Update All Selected Mods** 
 
 On app load, all mods in the default mods folder should be displayed. The Cresta weapon pack is an exception, which handles them all as a single mod.
 
-* Until otherwise needed, this script only works if mods are in default location.
+* Changing the default mods location is now supported, and will automatically reload the mods list with validated mods. **Click the mods folder path textbox to change.**
+* Basic mod validation is used. If 'info.txt' does not exist or include mod name, it is ignored and not included in the list.
 * Make sure to back up your mods folder. By default, this is your `Documents\Teardown\mods` folder. You may use the **Backup All Mods** button to do this for you.
 
 > **Note:**
