@@ -1,4 +1,4 @@
-<# Teardown Mods Manager v2.0.0 | by Timothy Gruber
+<# Teardown Mods Manager v2.1.0 | by Timothy Gruber
 
 Designed and written by Timothy Gruber:
     https://timothygruber.com
@@ -11,7 +11,7 @@ $myWindowsID = [System.Security.Principal.WindowsIdentity]::GetCurrent()
 $myWindowsPrincipal = New-Object System.Security.Principal.WindowsPrincipal($myWindowsID)
 $adminRole = [System.Security.Principal.WindowsBuiltInRole]::Administrator
 if ($myWindowsPrincipal.IsInRole($adminRole)) {
-    $Host.UI.RawUI.WindowTitle = "Teardown Mods Manager v2.0.0 | by Timothy Gruber"
+    $Host.UI.RawUI.WindowTitle = "Teardown Mods Manager v2.1.0 | by Timothy Gruber"
     $Host.UI.RawUI.BackgroundColor = "DarkBlue"
     Clear-Host
 } else {
@@ -20,7 +20,7 @@ if ($myWindowsPrincipal.IsInRole($adminRole)) {
 }
 #endregion
 
-Write-Host "Running Teardown Mods Manager v2.0.0 | by Timothy Gruber...`n`nClosing this window will close Teardown Mods Manager.`n"
+Write-Host "Running Teardown Mods Manager v2.1.0 | by Timothy Gruber...`n`nClosing this window will close Teardown Mods Manager.`n"
 
 #  ███    ███  █████  ██ ███    ██     ██     ██ ██ ███    ██ ██████   ██████  ██     ██ 
 #  ████  ████ ██   ██ ██ ████   ██     ██     ██ ██ ████   ██ ██   ██ ██    ██ ██     ██ 
@@ -140,23 +140,26 @@ Log initialized: $(Get-Date)
     function Get-ModDeets {
         [CmdletBinding()]
         param (
-            [String]$ModDir
+            [String]$ModDir,
+            [Switch]$Single
         )
+        "Running Get-ModDeets function" | Write-Log
 
         if (-not $ModDir) {
             if ($true -eq (Test-Path -Path "$env:USERPROFILE\Documents\Teardown\mods" -PathType Container)) {
                 $ModDir = "$env:USERPROFILE\Documents\Teardown\mods"
+                $allMods = Get-ChildItem -Path $modDir -Directory
             }
         } else {
+            "ModDir is [$ModDir]" | Write-Log
             if ($true -eq (Test-Path -Path $ModDir -PathType Container)) {
-                $ModDir = $ModDir
-            }
-        }
-
-        if ($ModDir -match "Teardown\\mods$") {
-            $allMods = Get-ChildItem -Path $modDir -Directory
-        } else {
-            $allMods = Get-Item -Path $modDir
+                "ModDir [$ModDir] tests good" | Write-Log
+                if ($Single) {
+                    $allMods = Get-Item -Path $modDir
+                } else {
+                    $allMods = Get-ChildItem -Path $modDir -Directory
+                }
+            } else {"ERROR: ModDir [$ModDir] test failed." | Write-Log}
         }
 
         $crestaNameFilter = "500 Magnum|AC130 Airstrike|AK-47|AWP|Black Hole|Charge Shotgun|Desert Eagle|Dragonslayer|Dual Berettas|Dual Miniguns|Exploding Star|Guided Missile|Hadouken|Holy Grenade|Laser Cutter|Lightkatana|M4A1|M249|MGL|Minigun|Mjolner|Nova|P90|RPG|SCAR-20|Scorpion|SG-553"
@@ -176,6 +179,11 @@ Log initialized: $(Get-Date)
             $modVersion     = if (($modInfo -match 'version = ' -split 'version = ')[1].Length -gt 2) {($modInfo -match 'version = ' -split 'version = ')[1] -replace "_",' '} else {"version missing in mod info.txt"}
             $modAuthor      = if (($modInfo -match 'author = ' -split 'author = ')[1].Length -gt 2) {($modInfo -match 'author = ' -split 'author = ')[1]} else {"author not found in mod info.txt"}
             $modDescription = if (($modInfo -match 'description = ' -split 'description = ')[1].Length -gt 2) {($modInfo -match 'description = ' -split 'description = ')[1]} else {"description not found in mod info.txt"}
+            # Valid mod check:
+            if(($modInfo -match 'name = ' -split 'name = ')[1].Length -lt 2) {
+                "WARNING: [$($mod.Fullname)] is not a valid mod." | Write-Log
+                Continue
+            }
             # MyCresta Check
                 if (($modAuthor -eq "My Cresta") -and ($mod -ne $crestaMod)) {
                     Continue
@@ -215,6 +223,7 @@ Log initialized: $(Get-Date)
 
         }
 
+        "End Get-ModDeets function." | Write-Log
         Write-Output -InputObject $allModsDeets
 
     }
@@ -235,7 +244,7 @@ Log initialized: $(Get-Date)
 <Window
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Title="Teardown Mods Manager v2.0.0 | by Timothy Gruber" Height="500" Width="958" ScrollViewer.VerticalScrollBarVisibility="Disabled" MinWidth="924" MinHeight="500">
+    Title="Teardown Mods Manager v2.1.0 | by Timothy Gruber" Height="540" Width="1000" ScrollViewer.VerticalScrollBarVisibility="Disabled" MinWidth="966" MinHeight="500">
     <Grid>
         <DockPanel>
             <StatusBar DockPanel.Dock="Bottom">
@@ -274,7 +283,9 @@ Log initialized: $(Get-Date)
                                 <Button DockPanel.Dock="Right" Name="ReloadModList" Content="Reload Mod List" VerticalAlignment="Center" Height="30" Width="150" FontSize="14" Padding="10,1" Margin="5,0" HorizontalAlignment="Right" FontWeight="Bold"/>
                                 <Button DockPanel.Dock="Right" Name="DeleteSelectedMod" Content="Delete Selected Mod" VerticalAlignment="Center" Height="30" Width="150" FontSize="12" Padding="10,1" Margin="5,0" HorizontalAlignment="Right" FontWeight="Bold" BorderThickness="2" BorderBrush="#FFAA1F1F" Foreground="#FF8D0000" Background="#FFFFF5B7"/>
                                 <Button DockPanel.Dock="Left" Name="UpdateAllSelectedMods" Content="Update All Selected Mods" VerticalAlignment="Center" Height="30" Width="200" FontSize="14" Padding="10,1" Margin="5,0" HorizontalAlignment="Right" FontWeight="Bold"/>
-                                <StackPanel DockPanel.Dock="Left" HorizontalAlignment="Left" Margin="20,0,5,0">
+                                <StackPanel DockPanel.Dock="Left" HorizontalAlignment="Left" Margin="0,0,5,0">
+                                    <Label Content="Teardown mods folder:" VerticalAlignment="Top" Padding="5,0" Margin="5,0" FontWeight="Bold" MinWidth="150" Height="15"/>
+                                    <TextBox Name="SelectDefaultModsLocation" VerticalAlignment="Center" Height="18" FontSize="12" Padding="0,0,5,0" Margin="5,0" HorizontalAlignment="Right" IsReadOnlyCaretVisible="True" IsReadOnly="True" ToolTip="Click to select your Teardown mods location if displayed default is incorrect." MinWidth="150"/>
                                 </StackPanel>
                             </DockPanel>
                             <GroupBox Name="ModsListBoxGroupBox" Header="Installed Mods List" Margin="0,2,0,0">
@@ -322,7 +333,7 @@ Log initialized: $(Get-Date)
                     <DockPanel Margin="0,5,0,0">
                         <GroupBox Header="about" DockPanel.Dock="Bottom" VerticalAlignment="Bottom" FontWeight="Bold">
                             <ScrollViewer>
-                                <TextBlock TextWrapping="Wrap" FontWeight="Normal"><Run FontWeight="Bold" Text="Created by: "/><Run Text="&#x9;Timothy Gruber&#xA;"/><Run FontWeight="Bold" Text="Website:&#x9;"/><Hyperlink NavigateUri="https://timothygruber.com/"><Run Text="TimothyGruber.com&#xA;"/></Hyperlink><Run FontWeight="Bold" Text="GitHub:&#x9;&#x9;"/><Hyperlink NavigateUri="https://github.com/tjgruber/TeardownModsManager"><Run Text="https://github.com/tjgruber/TeardownModsManager&#xA;"/></Hyperlink><Run FontWeight="Bold" Text="Version:"/><Run Text="&#x9;&#x9;v2.0.0"/></TextBlock>
+                                <TextBlock TextWrapping="Wrap" FontWeight="Normal"><Run FontWeight="Bold" Text="Created by: "/><Run Text="&#x9;Timothy Gruber&#xA;"/><Run FontWeight="Bold" Text="Website:&#x9;"/><Hyperlink NavigateUri="https://timothygruber.com/"><Run Text="TimothyGruber.com&#xA;"/></Hyperlink><Run FontWeight="Bold" Text="GitHub:&#x9;&#x9;"/><Hyperlink NavigateUri="https://github.com/tjgruber/TeardownModsManager"><Run Text="https://github.com/tjgruber/TeardownModsManager&#xA;"/></Hyperlink><Run FontWeight="Bold" Text="Version:"/><Run Text="&#x9;&#x9;v2.1.0"/></TextBlock>
                             </ScrollViewer>
                         </GroupBox>
                         <GroupBox Header="Help Menu:" FontWeight="Bold" FontSize="14">
@@ -376,7 +387,12 @@ Log initialized: $(Get-Date)
                                                     <List>
                                                         <ListItem>
                                                             <Paragraph FontWeight="Normal" FontSize="14">
-                                                                <Run Text="Until otherwise needed, this script only works if mods are in default location."/>
+                                                                <Run Text="Changing the default mods location is now supported, and will automatically reload the mods list with validated mods. ** Click the mods folder path textbox to change. **"/>
+                                                            </Paragraph>
+                                                        </ListItem>
+                                                        <ListItem>
+                                                            <Paragraph FontWeight="Normal" FontSize="14">
+                                                                <Run Text="Basic mod validation is used. If 'info.txt' does not exist or include mod name, it is ignored and not included in the list."/>
                                                             </Paragraph>
                                                         </ListItem>
                                                         <ListItem>
@@ -398,8 +414,8 @@ Log initialized: $(Get-Date)
                                         </ScrollViewer>
                                     </GroupBox>
                                 </TabItem>
-                                <TabItem Header="Backup All Mods Tab" Height="35" VerticalAlignment="Top" TextOptions.TextFormattingMode="Display" FontSize="14">
-                                    <GroupBox Header="Backup All Mods Tab..." FontSize="16">
+                                <TabItem Header="Backup All Mods" Height="35" VerticalAlignment="Top" TextOptions.TextFormattingMode="Display" FontSize="14">
+                                    <GroupBox Header="Backup All Mods Button..." FontSize="16">
                                         <ScrollViewer>
                                             <RichTextBox IsReadOnlyCaretVisible="True" IsReadOnly="True">
                                                 <FlowDocument>
@@ -544,6 +560,8 @@ Log initialized: $(Get-Date)
 
     #region ONLOAD CODE
 
+    Update-Window -Control SelectDefaultModsLocation -Property Text -Value "$env:USERPROFILE\Documents\Teardown\Mods"
+
     "Invoking mod table layout and prep" | Write-Log
     Invoke-TablePrep
 
@@ -591,7 +609,12 @@ Log initialized: $(Get-Date)
         Invoke-TablePrep
 
         "Getting mod file details" | Write-Log
-        $syncHash.allModsDeetz = Get-ModDeets
+        if ($syncHash.folderSelectDialog.SelectedPath.Length -gt 2) {
+            $syncHash.allModsDeetz = Get-ModDeets -ModDir $syncHash.folderSelectDialog.SelectedPath
+            $statusBarTextFinish = "Finished reloading new mod list [$($syncHash.folderSelectDialog.SelectedPath)]. Ready..."
+        } else {
+            $syncHash.allModsDeetz = Get-ModDeets
+        }
     
         foreach ($modItem in $syncHash.allModsDeetz) {
             "Refreshing mod row [$($modItem.ModName)]" | Write-Log
@@ -609,7 +632,9 @@ Log initialized: $(Get-Date)
             [void]$syncHash.dataTable.Rows.Add($row)
         }
 
-        Update-Window -Control StatusBarText -Property Text -Value "Finished reloading mod list. Ready..."
+        if ($statusBarTextFinish) {
+            Update-Window -Control StatusBarText -Property Text -Value $statusBarTextFinish
+        } else {Update-Window -Control StatusBarText -Property Text -Value "Finished reloading mod list. Ready..."}
         Update-Window -Control ProgressBar -Property "Value" -Value 0
 
     })
@@ -630,11 +655,30 @@ Log initialized: $(Get-Date)
     $syncHash.UpdateAllSelectedMods.Add_Click({
         "Clicked 'Update All Mods' button" | Write-Log
 
+        # Defines the Teardown mods folder to use throughout below logic
+        $modsFolderPath = if ($syncHash.folderSelectDialog.SelectedPath) {$syncHash.folderSelectDialog.SelectedPath} else {"$env:USERPROFILE\Documents\Teardown\mods"}
+
         Update-Window -Control ProgressBar -Property "Value" -Value 0
         Update-Window -Control ProgressBar -Property "Background" -Value "#FFE6E6E6"
         Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF06B025"
 
-        if (-not ($syncHash.ModsListDataGrid.SelectedCells | Select-Object -First 1).Item) {
+        "Building mods list from selected cells" | Write-Log
+        $selectedCells = foreach ($selectedCellRow in $syncHash.ModsListDataGrid.SelectedCells) {
+            [PSCustomObject]@{
+                'ModName'           = $selectedCellRow.Item.modName -replace "\|(.*)\| ",''
+                'ModVersion'        = $selectedCellRow.Item.modVersion
+                'ModAuthor'         = $selectedCellRow.Item.modAuthor
+                'ModDescription'    = $selectedCellRow.Item.modDescription
+                'ModPath'           = $selectedCellRow.Item.ModPath
+                'ModWebPage'        = if ($selectedCellRow.Item.modWebLink.Length -gt 25) {$selectedCellRow.Item.modWebLink} else {"NA"}
+                'ModDownloadLink'   = if ($selectedCellRow.Item.modPackageDownloadLink.Length -gt 25) {$selectedCellRow.Item.modPackageDownloadLink} else {"NA"}
+            }
+        }
+
+        $selectedMods = (($selectedCells | Group-Object -Property ModName).Name) | Where-Object {$_ -cne 'Mod Name'}
+        "Selected mods are [$($selectedMods -join ', ')]" | Write-Log
+
+        if (-not ($selectedMods)) {
             Update-Window -Control StatusBarText -Property Text -Value "No mod selected. Please select a mod and try again!"
         } else {
 
@@ -644,6 +688,8 @@ Log initialized: $(Get-Date)
             $UpdateAllSelectedModsRunspace.ThreadOptions = "ReuseThread"
             $UpdateAllSelectedModsRunspace.Open()
             $UpdateAllSelectedModsRunspace.SessionStateProxy.SetVariable("syncHash", $syncHash)
+            $UpdateAllSelectedModsRunspace.SessionStateProxy.SetVariable("modsFolderPath", $modsFolderPath)
+            $UpdateAllSelectedModsRunspace.SessionStateProxy.SetVariable("selectedMods", $selectedMods)
 
             $UpdateAllSelectedModsRunspaceScript = [PowerShell]::Create().AddScript({
 
@@ -921,22 +967,6 @@ Log initialized: $(Get-Date)
                     $zipOnly = $true
                 }
 
-                "Building mods list from selected cells" | Write-Log
-                $selectedCells = foreach ($selectedCellRow in $syncHash.ModsListDataGrid.SelectedCells) {
-                    [PSCustomObject]@{
-                        'ModName'           = $selectedCellRow.Item.modName -replace "\|(.*)\| ",''
-                        'ModVersion'        = $selectedCellRow.Item.modVersion
-                        'ModAuthor'         = $selectedCellRow.Item.modAuthor
-                        'ModDescription'    = $selectedCellRow.Item.modDescription
-                        'ModPath'           = $selectedCellRow.Item.ModPath
-                        'ModWebPage'        = if ($selectedCellRow.Item.modWebLink.Length -gt 25) {$selectedCellRow.Item.modWebLink} else {"NA"}
-                        'ModDownloadLink'   = if ($selectedCellRow.Item.modPackageDownloadLink.Length -gt 25) {$selectedCellRow.Item.modPackageDownloadLink} else {"NA"}
-                    }
-                }
-
-                $selectedMods = ($selectedCells | Group-Object -Property ModName).Name
-                "Selected mods are [$($selectedMods -join ', ')]" | Write-Log
-
                 $syncHash.selectedModsList = $syncHash.allModsDeetz | Where-Object {$selectedMods -match ($_.ModName -replace '[^a-zA-Z0-9 .]','')}
 
                 $syncHash.allModsUpdateTotal = $syncHash.selectedModsList.ModName.Count
@@ -973,6 +1003,7 @@ Log initialized: $(Get-Date)
                     $UpdateAllSelectedModsRunspaceSpawn.SessionStateProxy.SetVariable("wrarExePath", $wrarExePath)
                     $UpdateAllSelectedModsRunspaceSpawn.SessionStateProxy.SetVariable("wrarInstalled", $wrarInstalled)
                     $UpdateAllSelectedModsRunspaceSpawn.SessionStateProxy.SetVariable("rowSearch", $rowSearch)
+                    $UpdateAllSelectedModsRunspaceSpawn.SessionStateProxy.SetVariable("modsFolderPath", $modsFolderPath)
                     
 
                     $UpdateAllSelectedModsRunspaceSpawnScript = [PowerShell]::Create().AddScript({
@@ -1225,15 +1256,15 @@ Log initialized: $(Get-Date)
 
                                 foreach ($wpnMod in $CrestaWpnPckList) {
 
-                                    Remove-Item -Path "$env:USERPROFILE\Documents\Teardown\mods\$wpnMod" -Recurse -Force
+                                    Remove-Item -Path "$modsFolderPath\$wpnMod" -Recurse -Force
 
                                     # Verify old version of mod was removed from mods directory:
-                                    if ((Test-Path -Path "$env:USERPROFILE\Documents\Teardown\mods\$wpnMod") -eq $true) {
+                                    if ((Test-Path -Path "$modsFolderPath\$wpnMod") -eq $true) {
                                         Update-Window -Control ProgressBar -Property "Background" -Value "#FFEA8A00"
                                         Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF0000"
                                         ($syncHash.dataTable.Rows | Where-Object {$_.ModName -match $rowSearch}).ModName = "| Update failed, try again later... | $cellOriginal"
                                         "Setting [$($modDeetz.ModName)] 'Mod Name' cell text update process status to [| Update failed, try again later... | $cellOriginal]" | Write-Log
-                                        Update-Window -Control StatusBarText -Property Text -Value "ERROR: There was a problem removing old mod version folder: [$("$env:USERPROFILE\Documents\Teardown\mods\$wpnMod")]."
+                                        Update-Window -Control StatusBarText -Property Text -Value "ERROR: There was a problem removing old mod version folder: [$modsFolderPath\$wpnMod]."
                                         $syncHash.progressBarValue = [int](100/$syncHash.allModsUpdateTotal*$syncHash.allModsUpdateCount)
                                         Update-Window -Control ProgressBar -Property "Value" -Value $syncHash.progressBarValue
                                         $syncHash.allModsUpdateCount++
@@ -1244,29 +1275,27 @@ Log initialized: $(Get-Date)
 
                                 ($syncHash.dataTable.Rows | Where-Object {$_.ModName -match $rowSearch}).ModName = "| Extracting mod package... | $cellOriginal"
                                 "Setting [$($modDeetz.ModName)] 'Mod Name' cell text update process status to [| Extracting mod package... | $cellOriginal" | Write-Log
-                                Update-Window -Control StatusBarText -Property Text -Value "Extracting [$outFilePath] to [$("$env:USERPROFILE\Documents\Teardown\mods\")]..."
+                                Update-Window -Control StatusBarText -Property Text -Value "Extracting [$outFilePath] to [$modsFolderPath]..."
 
                                 if ($7zInstalled -eq $true) {
-                                    $destinationPath = "$env:USERPROFILE\Documents\Teardown\mods"
-                                    $argumentList = @('x', ('"'+$outFilePath+'"'), ('"-o'+$destinationPath+'"'), '-y')
+                                    $argumentList = @('x', ('"'+$outFilePath+'"'), ('"-o'+$modsFolderPath+'"'), '-y')
                                     Start-Process -FilePath "$7zExePath" -ArgumentList $argumentList -WindowStyle Hidden -Wait
                                 } elseif ($wrarInstalled -eq $true -and $dlFileTestName -eq "rar") {
-                                    $destinationPath = "$env:USERPROFILE\Documents\Teardown\mods"
-                                    $argumentList = @("x -y", ('"'+$outFilePath+'"'), ('"'+$destinationPath+'"'))
+                                    $argumentList = @("x -y", ('"'+$outFilePath+'"'), ('"'+$modsFolderPath+'"'))
                                     Start-Process -FilePath "$wrarExePath" -ArgumentList $argumentList -WindowStyle Hidden -Wait
                                 } else {
-                                    Expand-Archive -Path $outFilePath -DestinationPath "$env:USERPROFILE\Documents\Teardown\mods" -Force -ErrorAction SilentlyContinue -ErrorVariable EXARERR
+                                    Expand-Archive -Path $outFilePath -DestinationPath $modsFolderPath -Force -ErrorAction SilentlyContinue -ErrorVariable EXARERR
                                 }
 
                                 foreach ($wpnMod in $CrestaWpnPckList) {
 
                                     # Verify new mod has been successfully extracted to mods folder:
-                                    if ((Test-Path -Path "$env:USERPROFILE\Documents\Teardown\mods\$wpnMod") -eq $false) {
+                                    if ((Test-Path -Path "$modsFolderPath\$wpnMod") -eq $false) {
                                         Update-Window -Control ProgressBar -Property "Background" -Value "#FFEA8A00"
                                         Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF0000"
                                         ($syncHash.dataTable.Rows | Where-Object {$_.ModName -match $rowSearch}).ModName = "| Update failed, try again later... | $cellOriginal"
                                         "Setting [$($modDeetz.ModName)] 'Mod Name' cell text update process status to [| Update failed, try again later... | $cellOriginal]" | Write-Log
-                                        Update-Window -Control StatusBarText -Property Text -Value "ERROR: Mod folder [$("$env:USERPROFILE\Documents\Teardown\mods\$wpnMod")] was not detected after [$dlFileTestName] archive extraction to mods folder. Please create GitHub issue."
+                                        Update-Window -Control StatusBarText -Property Text -Value "ERROR: Mod folder [$("$modsFolderPath\$wpnMod")] was not detected after [$dlFileTestName] archive extraction to mods folder. Please create GitHub issue."
                                         $syncHash.progressBarValue = [int](100/$syncHash.allModsUpdateTotal*$syncHash.allModsUpdateCount)
                                         Update-Window -Control ProgressBar -Property "Value" -Value $syncHash.progressBarValue
                                         $syncHash.allModsUpdateCount++
@@ -1297,15 +1326,13 @@ Log initialized: $(Get-Date)
                                 Update-Window -Control StatusBarText -Property Text -Value "Extracting [$outFilePath] to [$($modItem.ModPath)]..."
 
                                 if ($7zInstalled -eq $true) {
-                                    $destinationPath = "$env:USERPROFILE\Documents\Teardown\mods"
-                                    $argumentList = @('x', ('"'+$outFilePath+'"'), ('"-o'+$destinationPath+'"'), '-y')
+                                    $argumentList = @('x', ('"'+$outFilePath+'"'), ('"-o'+$modsFolderPath+'"'), '-y')
                                     Start-Process -FilePath "$7zExePath" -ArgumentList $argumentList -WindowStyle Hidden -Wait
                                 } elseif ($wrarInstalled -eq $true -and $dlFileTestName -eq "rar") {
-                                    $destinationPath = "$env:USERPROFILE\Documents\Teardown\mods"
-                                    $argumentList = @("x -y", ('"'+$outFilePath+'"'), ('"'+$destinationPath+'"'))
+                                    $argumentList = @("x -y", ('"'+$outFilePath+'"'), ('"'+$modsFolderPath+'"'))
                                     Start-Process -FilePath "$wrarExePath" -ArgumentList $argumentList -WindowStyle Hidden -Wait
                                 } else {
-                                    Expand-Archive -Path $outFilePath -DestinationPath "$env:USERPROFILE\Documents\Teardown\mods" -Force -ErrorAction SilentlyContinue -ErrorVariable EXARERR
+                                    Expand-Archive -Path $outFilePath -DestinationPath $modsFolderPath -Force -ErrorAction SilentlyContinue -ErrorVariable EXARERR
                                 }
                     
                                 # Verify new mod has been successfully extracted to mods folder:
@@ -1370,7 +1397,7 @@ Log initialized: $(Get-Date)
 
         }
 
-        Get-Runspace | Where-Object { $_.RunspaceAvailability -eq "Available" } | ForEach-Object Close
+        #Get-Runspace | Where-Object { $_.RunspaceAvailability -eq "Available" } | ForEach-Object Close
 
     })
 
@@ -1407,104 +1434,79 @@ Log initialized: $(Get-Date)
             }
         }
 
-        $selectedMods = ($selectedCells | Group-Object -Property ModName).Name
-        "Selected mods to delete are [$($selectedMods -join ', ')]" | Write-Log
-        Update-Window -Control StatusBarText -Property Text -Value "Deleting selected mods [$($selectedMods -join ', ')]..."
+        $selectedMods = (($selectedCells | Group-Object -Property ModName).Name) | Where-Object {$_ -cne 'Mod Name'}
+        
+        if (-not ($selectedMods)) {
+            Update-Window -Control StatusBarText -Property Text -Value "No mod selected. Please select a mod and try again!"
+        } else {
+        
+            "Selected mods to delete are [$($selectedMods -join ', ')]" | Write-Log
+            Update-Window -Control StatusBarText -Property Text -Value "Deleting selected mods [$($selectedMods -join ', ')]..."
 
-        $syncHash.selectedModsToDeleteList = $syncHash.allModsDeetz | Where-Object {$selectedMods -match ($_.ModName -replace '[^a-zA-Z0-9 .]','')}
+            $syncHash.selectedModsToDeleteList = $syncHash.allModsDeetz | Where-Object {$selectedMods -match ($_.ModName -replace '[^a-zA-Z0-9 .]','')}
 
-        $syncHash.allModsDeleteTotal = $syncHash.selectedModsToDeleteList.ModName.Count
-        $syncHash.allModsDeleteCount = 1
-        foreach ($mod in $syncHash.selectedModsToDeleteList) {
+            $syncHash.allModsDeleteTotal = $syncHash.selectedModsToDeleteList.ModName.Count
+            $syncHash.allModsDeleteCount = 1
+            foreach ($mod in $syncHash.selectedModsToDeleteList) {
 
-            "Deleting mod [$($mod.ModName)]" | Write-Log
+                "Deleting mod [$($mod.ModName)]" | Write-Log
 
-            if ($mod.modName -eq "Functional Weapon Pack") {
-                $CrestaWpnPckList = @(
-                    '500 Magnum'
-                    'AC130 Airstrike'
-                    'AK-47'
-                    'AWP'
-                    'Black Hole'
-                    'Charge Shotgun'
-                    'Desert Eagle'
-                    'Dragonslayer'
-                    'Dual Berettas'
-                    'Dual Miniguns'
-                    'Exploding Star'
-                    'Guided Missile'
-                    'Hadouken'
-                    'Holy Grenade'
-                    'Laser Cutter'
-                    'Lightkatana'
-                    'M4A1'
-                    'M249'
-                    'Magic Bag'
-                    'MGL'
-                    'Minigun'
-                    'Mjolner'
-                    'Nova'
-                    'P90'
-                    'RPG'
-                    'SCAR-20'
-                    'Scorpion'
-                    'SG-553'
-                )
+                if ($mod.modName -eq "Functional Weapon Pack") {
+                    $CrestaWpnPckList = @(
+                        '500 Magnum'
+                        'AC130 Airstrike'
+                        'AK-47'
+                        'AWP'
+                        'Black Hole'
+                        'Charge Shotgun'
+                        'Desert Eagle'
+                        'Dragonslayer'
+                        'Dual Berettas'
+                        'Dual Miniguns'
+                        'Exploding Star'
+                        'Guided Missile'
+                        'Hadouken'
+                        'Holy Grenade'
+                        'Laser Cutter'
+                        'Lightkatana'
+                        'M4A1'
+                        'M249'
+                        'Magic Bag'
+                        'MGL'
+                        'Minigun'
+                        'Mjolner'
+                        'Nova'
+                        'P90'
+                        'RPG'
+                        'SCAR-20'
+                        'Scorpion'
+                        'SG-553'
+                    )
 
-                $rowSearch = $mod.ModName -replace '[^a-zA-Z0-9 .]',''
-                $cellOriginal = ($syncHash.dataTable.Rows | Where-Object {$_.ModName -match $rowSearch}).ModName -replace "\|(.*)\| ",''
-                ($syncHash.dataTable.Rows | Where-Object {$_.ModName -match $rowSearch}).ModName = "| Deleting... | $cellOriginal"
-                "Setting [$($mod.ModName)] 'Mod Name' cell text update process status to [| Deleting... | $cellOriginal]" | Write-Log
+                    $rowSearch = $mod.ModName -replace '[^a-zA-Z0-9 .]',''
+                    $cellOriginal = ($syncHash.dataTable.Rows | Where-Object {$_.ModName -match $rowSearch}).ModName -replace "\|(.*)\| ",''
+                    ($syncHash.dataTable.Rows | Where-Object {$_.ModName -match $rowSearch}).ModName = "| Deleting... | $cellOriginal"
+                    "Setting [$($mod.ModName)] 'Mod Name' cell text update process status to [| Deleting... | $cellOriginal]" | Write-Log
 
-                foreach ($wpnMod in $CrestaWpnPckList) {
-                    "Deleting 'Functional Weapon Pack' mod [$wpnMod]" | Write-Log
-                    Remove-Item -Path "$env:USERPROFILE\Documents\Teardown\mods\$wpnMod" -Recurse -Force -ErrorAction SilentlyContinue
+                    foreach ($wpnMod in $CrestaWpnPckList) {
+                        "Deleting 'Functional Weapon Pack' mod [$wpnMod]" | Write-Log
+                        Remove-Item -Path "$modsFolderPath\$wpnMod" -Recurse -Force -ErrorAction SilentlyContinue
 
-                    # Verify mod was removed from mods directory:
-                    if ((Test-Path -Path "$env:USERPROFILE\Documents\Teardown\mods\$wpnMod") -eq $true) {
-                        Update-Window -Control ProgressBar -Property "Background" -Value "#FFEA8A00"
-                        Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF0000"
-                        ($syncHash.dataTable.Rows | Where-Object {$_.ModName -match $rowSearch}).ModName = "| Mod deletion failed... | $cellOriginal"
-                        "Setting [$($mod.ModName)] 'Mod Name' cell text update process status to [| Mod deletion failed... | $cellOriginal]" | Write-Log
-                        Update-Window -Control StatusBarText -Property Text -Value "ERROR: There was a problem removing mod folder: [$($mod.ModPath)]."
-                        $syncHash.progressBarValue = [int](100/$syncHash.allModsDeleteTotal*$syncHash.allModsDeleteCount)
-                        Update-Window -Control ProgressBar -Property "Value" -Value $syncHash.progressBarValue
-                        $syncHash.allModsDeleteCount++
-                        Break
+                        # Verify mod was removed from mods directory:
+                        if ((Test-Path -Path "$modsFolderPath\$wpnMod") -eq $true) {
+                            Update-Window -Control ProgressBar -Property "Background" -Value "#FFEA8A00"
+                            Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF0000"
+                            ($syncHash.dataTable.Rows | Where-Object {$_.ModName -match $rowSearch}).ModName = "| Mod deletion failed... | $cellOriginal"
+                            "Setting [$($mod.ModName)] 'Mod Name' cell text update process status to [| Mod deletion failed... | $cellOriginal]" | Write-Log
+                            Update-Window -Control StatusBarText -Property Text -Value "ERROR: There was a problem removing mod folder: [$($mod.ModPath)]."
+                            $syncHash.progressBarValue = [int](100/$syncHash.allModsDeleteTotal*$syncHash.allModsDeleteCount)
+                            Update-Window -Control ProgressBar -Property "Value" -Value $syncHash.progressBarValue
+                            $syncHash.allModsDeleteCount++
+                            Break
+                        }
+
                     }
 
-                }
-
-                ($syncHash.dataTable.Rows | Where-Object {$_.ModName -match $rowSearch}).ModName = "| Mod deleted [$(Get-Date)]... | $cellOriginal"
-                "Setting [$($mod.ModName)] 'Mod Name' cell text update process status to [| Mod deleted [$(Get-Date)]... | $cellOriginal]" | Write-Log
-                $syncHash.progressBarValue = [int](100/$syncHash.allModsDeleteTotal*$syncHash.allModsDeleteCount)
-                Update-Window -Control ProgressBar -Property "Value" -Value $syncHash.progressBarValue
-                $finalStatus = if ($syncHash.progressBarValue -eq [int32]100) {"Finsihed deleting selected mods! Ready..."} else {"Deleting selected mods. Please wait..."} #finished updating [$($modItem.modName)] mod successfully...
-                Update-Window -Control StatusBarText -Property Text -Value "$finalStatus"
-                Update-Window -Control ProgressBar -Property "Background" -Value "#FFE6E6E6"
-                Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF06B025"
-                $syncHash.allModsDeleteCount++
-
-            } else {
-                
-                $rowSearch = $mod.ModName -replace '[^a-zA-Z0-9 .]',''
-                $cellOriginal = ($syncHash.dataTable.Rows | Where-Object {$_.ModName -match $rowSearch}).ModName -replace "\|(.*)\| ",''
-                ($syncHash.dataTable.Rows | Where-Object {$_.ModName -match $rowSearch}).ModName = "| Deleting... | $cellOriginal"
-                "Setting [$($mod.ModName)] 'Mod Name' cell text update process status to [| Deleting... | $cellOriginal]" | Write-Log
-                Remove-Item -Path $mod.ModPath -Recurse -Force -ErrorAction SilentlyContinue
-    
-                # Verify mod was removed from mods directory:
-                if ((Test-Path -Path $mod.ModPath) -eq $true) {
-                    Update-Window -Control ProgressBar -Property "Background" -Value "#FFEA8A00"
-                    Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF0000"
-                    ($syncHash.dataTable.Rows | Where-Object {$_.ModName -match $rowSearch}).ModName = "| Mod deletion failed... | $cellOriginal"
-                    "Setting [$($mod.ModName)] 'Mod Name' cell text update process status to [| Mod deletion failed... | $cellOriginal]" | Write-Log
-                    Update-Window -Control StatusBarText -Property Text -Value "ERROR: There was a problem removing mod folder: [$($mod.ModPath)]."
-                    $syncHash.progressBarValue = [int](100/$syncHash.allModsDeleteTotal*$syncHash.allModsDeleteCount)
-                    Update-Window -Control ProgressBar -Property "Value" -Value $syncHash.progressBarValue
-                    $syncHash.allModsDeleteCount++
-                    Continue
-                } else {
                     ($syncHash.dataTable.Rows | Where-Object {$_.ModName -match $rowSearch}).ModName = "| Mod deleted [$(Get-Date)]... | $cellOriginal"
                     "Setting [$($mod.ModName)] 'Mod Name' cell text update process status to [| Mod deleted [$(Get-Date)]... | $cellOriginal]" | Write-Log
                     $syncHash.progressBarValue = [int](100/$syncHash.allModsDeleteTotal*$syncHash.allModsDeleteCount)
@@ -1514,20 +1516,42 @@ Log initialized: $(Get-Date)
                     Update-Window -Control ProgressBar -Property "Background" -Value "#FFE6E6E6"
                     Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF06B025"
                     $syncHash.allModsDeleteCount++
+
+                } else {
+                    
+                    $rowSearch = $mod.ModName -replace '[^a-zA-Z0-9 .]',''
+                    $cellOriginal = ($syncHash.dataTable.Rows | Where-Object {$_.ModName -match $rowSearch}).ModName -replace "\|(.*)\| ",''
+                    ($syncHash.dataTable.Rows | Where-Object {$_.ModName -match $rowSearch}).ModName = "| Deleting... | $cellOriginal"
+                    "Setting [$($mod.ModName)] 'Mod Name' cell text update process status to [| Deleting... | $cellOriginal]" | Write-Log
+                    Remove-Item -Path $mod.ModPath -Recurse -Force -ErrorAction SilentlyContinue
+        
+                    # Verify mod was removed from mods directory:
+                    if ((Test-Path -Path $mod.ModPath) -eq $true) {
+                        Update-Window -Control ProgressBar -Property "Background" -Value "#FFEA8A00"
+                        Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF0000"
+                        ($syncHash.dataTable.Rows | Where-Object {$_.ModName -match $rowSearch}).ModName = "| Mod deletion failed... | $cellOriginal"
+                        "Setting [$($mod.ModName)] 'Mod Name' cell text update process status to [| Mod deletion failed... | $cellOriginal]" | Write-Log
+                        Update-Window -Control StatusBarText -Property Text -Value "ERROR: There was a problem removing mod folder: [$($mod.ModPath)]."
+                        $syncHash.progressBarValue = [int](100/$syncHash.allModsDeleteTotal*$syncHash.allModsDeleteCount)
+                        Update-Window -Control ProgressBar -Property "Value" -Value $syncHash.progressBarValue
+                        $syncHash.allModsDeleteCount++
+                        Continue
+                    } else {
+                        ($syncHash.dataTable.Rows | Where-Object {$_.ModName -match $rowSearch}).ModName = "| Mod deleted [$(Get-Date)]... | $cellOriginal"
+                        "Setting [$($mod.ModName)] 'Mod Name' cell text update process status to [| Mod deleted [$(Get-Date)]... | $cellOriginal]" | Write-Log
+                        $syncHash.progressBarValue = [int](100/$syncHash.allModsDeleteTotal*$syncHash.allModsDeleteCount)
+                        Update-Window -Control ProgressBar -Property "Value" -Value $syncHash.progressBarValue
+                        $finalStatus = if ($syncHash.progressBarValue -eq [int32]100) {"Finsihed deleting selected mods! Ready..."} else {"Deleting selected mods. Please wait..."} #finished updating [$($modItem.modName)] mod successfully...
+                        Update-Window -Control StatusBarText -Property Text -Value "$finalStatus"
+                        Update-Window -Control ProgressBar -Property "Background" -Value "#FFE6E6E6"
+                        Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF06B025"
+                        $syncHash.allModsDeleteCount++
+                    }
+
                 }
 
             }
 
-        }
-
-        if ($syncHash.allModsDeleteTotal -eq 0) {
-            if (-not ($syncHash.ModsListDataGrid.SelectedCells | Select-Object -First 1).Item) {
-                Update-Window -Control StatusBarText -Property Text -Value "No mod selected. Please select a mod and try again!"
-            } else {
-                Update-Window -Control ProgressBar -Property "Background" -Value "#FFEA8A00"
-                Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF0000"
-                Update-Window -Control StatusBarText -Property Text -Value "ERROR: Could not find a mod to delete named [$selectedMods]."
-            }
         }
 
     })
@@ -1546,11 +1570,16 @@ Log initialized: $(Get-Date)
 
     #region BACKUP ALL MODS BUTTON
     $syncHash.BackupAllMods.Add_MouseEnter({
-        Update-Window -Control BackupAllMods -Property Tooltip -Value "Potentially time consuming, backs up all mods in [$env:USERPROFILE\Documents\Teardown\mods] to [$env:USERPROFILE\Documents\Teardown\mods_backup_x.zip]."
+        # Defines the Teardown mods folder to use throughout below logic
+        $modsFolderPath = if ($syncHash.folderSelectDialog.SelectedPath) {$syncHash.folderSelectDialog.SelectedPath} else {"$env:USERPROFILE\Documents\Teardown\mods"}
+        Update-Window -Control BackupAllMods -Property Tooltip -Value "Potentially time consuming, backs up all mods in [$modsFolderPath] to [$((Get-Item -Path $modsFolderPath).Parent.FullName)\mods_backup_x.zip]."
     })
 
     $syncHash.BackupAllMods.Add_Click({
         "Clicked 'Backup All Mods' button" | Write-Log
+
+        # Defines the Teardown mods folder to use throughout below logic
+        $modsFolderPath = if ($syncHash.folderSelectDialog.SelectedPath) {$syncHash.folderSelectDialog.SelectedPath} else {"$env:USERPROFILE\Documents\Teardown\mods"}
 
         Update-Window -Control ProgressBar -Property "Value" -Value 0
 
@@ -1562,6 +1591,7 @@ Log initialized: $(Get-Date)
         $BackupAllModsRunspace.ThreadOptions = "ReuseThread"
         $BackupAllModsRunspace.Open()
         $BackupAllModsRunspace.SessionStateProxy.SetVariable("syncHash", $syncHash)
+        $BackupAllModsRunspace.SessionStateProxy.SetVariable("modsFolderPath", $modsFolderPath)
 
         $BackupAllModsRunspaceScript = [PowerShell]::Create().AddScript({
 
@@ -1594,9 +1624,9 @@ Log initialized: $(Get-Date)
             Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF06B025"
 
             $compress = @{
-                Path = "$env:USERPROFILE\Documents\Teardown\mods"
+                Path = $modsFolderPath
                 CompressionLevel = "Fastest"
-                DestinationPath = "$env:USERPROFILE\Documents\Teardown\mods_backup_$((Get-Date).ToFileTime()).zip"
+                DestinationPath = "$((Get-Item -Path $modsFolderPath).Parent.FullName)\mods_backup_$((Get-Date).ToFileTime()).zip"
             }
 
             Update-Window -Control ProgressBar -Property "Value" -Value 28
@@ -1654,7 +1684,7 @@ Log initialized: $(Get-Date)
         $SaveDialog.ShowDialog() | Out-Null
         $syncHash.tmmLog >> $SaveDialog.Filename
         if ($SaveDialog.Filename) {
-            [System.Windows.Forms.MessageBox]::Show("Logs exported at $($SaveDialog.Filename)","Log Export | Teardown Mods Manager v2.0.0")
+            [System.Windows.Forms.MessageBox]::Show("Logs exported at $($SaveDialog.Filename)","Log Export | Teardown Mods Manager v2.1.0")
             Update-Window -Control StatusBarText -Property Text -Value "Logs exported at $($SaveDialog.Filename)"
         } else {
             "Log export cancelled" | Write-Log
@@ -1666,6 +1696,68 @@ Log initialized: $(Get-Date)
     #############################################
     #############################################
     #endRegion EXPORT LOGS BUTTON
+    #############################################
+    #############################################
+
+#  ███████ ███████ ██      ███████  ██████ ████████     ██████  ███████ ███████  █████  ██    ██ ██   ████████     ███    ███  ██████  ██████  ███████     ██       ██████   ██████  █████  ████████ ██  ██████  ███    ██     ████████ ███████ ██   ██ ████████ ██████   ██████  ██   ██ 
+#  ██      ██      ██      ██      ██         ██        ██   ██ ██      ██      ██   ██ ██    ██ ██      ██        ████  ████ ██    ██ ██   ██ ██          ██      ██    ██ ██      ██   ██    ██    ██ ██    ██ ████   ██        ██    ██       ██ ██     ██    ██   ██ ██    ██  ██ ██  
+#  ███████ █████   ██      █████   ██         ██        ██   ██ █████   █████   ███████ ██    ██ ██      ██        ██ ████ ██ ██    ██ ██   ██ ███████     ██      ██    ██ ██      ███████    ██    ██ ██    ██ ██ ██  ██        ██    █████     ███      ██    ██████  ██    ██   ███   
+#       ██ ██      ██      ██      ██         ██        ██   ██ ██      ██      ██   ██ ██    ██ ██      ██        ██  ██  ██ ██    ██ ██   ██      ██     ██      ██    ██ ██      ██   ██    ██    ██ ██    ██ ██  ██ ██        ██    ██       ██ ██     ██    ██   ██ ██    ██  ██ ██  
+#  ███████ ███████ ███████ ███████  ██████    ██        ██████  ███████ ██      ██   ██  ██████  ███████ ██        ██      ██  ██████  ██████  ███████     ███████  ██████   ██████ ██   ██    ██    ██  ██████  ██   ████        ██    ███████ ██   ██    ██    ██████   ██████  ██   ██ 
+
+    #region SELECT DEFAULT MODS LOCATION TEXTBOX
+    $syncHash.SelectDefaultModsLocation.Add_PreviewMouseUp({
+        "Clicked 'Select Default Mods Location' textbox" | Write-Log
+
+        Update-Window -Control ProgressBar -Property "Value" -Value 0
+        Update-Window -Control ProgressBar -Property "Background" -Value "#FFE6E6E6"
+        Update-Window -Control ProgressBar -Property "Foreground" -Value "#FF06B025"
+        Update-Window -Control StatusBarText -Property "Text" -Value "Opening 'Select Default Mods Location' folder selection window..."
+
+        [void][System.Reflection.Assembly]::LoadWithPartialName("System.Drawing")
+        [void][System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms")
+
+        $syncHash.folderSelectDialog = New-Object System.Windows.Forms.FolderBrowserDialog
+        $syncHash.folderSelectDialog.Description = "Select your Teardown mods folder:"
+        $syncHash.folderSelectDialog.RootFolder = "MyComputer"
+        $syncHash.folderSelectDialog.ShowDialog() | Out-Null
+
+        if ($syncHash.folderSelectDialog.SelectedPath.Length -gt 2) {
+            Update-Window -Control SelectDefaultModsLocation -Property Text -Value "$($syncHash.folderSelectDialog.SelectedPath)"
+            Update-Window -Control StatusBarText -Property Text -Value "Selected Teardown mods folder: [$($syncHash.folderSelectDialog.SelectedPath)]. Ready..."
+
+            "Invoking mod table layout and prep" | Write-Log
+            Invoke-TablePrep
+    
+            "Getting mod file details" | Write-Log
+            $syncHash.allModsDeetz = Get-ModDeets -ModDir $syncHash.folderSelectDialog.SelectedPath
+
+            foreach ($modItem in $syncHash.allModsDeetz) {
+                "Refreshing mod row [$($modItem.ModName)]" | Write-Log
+        
+                $row = $syncHash.dataTable.NewRow()
+        
+                    $row.ModName            = ($modItem.ModName -replace '[^a-zA-Z0-9 .]','')
+                    $row.ModVersion         = $modItem.ModVersion
+                    $row.ModAuthor          = $modItem.ModAuthor
+                    $row.ModDescription     = $modItem.ModDescription
+                    $row.ModPath            = $modItem.ModPath
+                    $row.ModWebpage         = $modItem.ModWebPage
+                    $row.ModDownloadLink    = $modItem.ModDownloadLink
+        
+                [void]$syncHash.dataTable.Rows.Add($row)
+            }
+            
+            Update-Window -Control StatusBarText -Property Text -Value "Finished reloading new mod list [$($syncHash.folderSelectDialog.SelectedPath)]. Ready..."
+        } else {
+            Update-Window -Control StatusBarText -Property Text -Value "Folder selection cancelled. Ready..."
+        }
+
+    })
+
+    #############################################
+    #############################################
+    #endRegion SELECT DEFAULT MODS LOCATION TEXTBOX
     #############################################
     #############################################
 
