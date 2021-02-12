@@ -1,7 +1,9 @@
 # Teardown Mods Manager
 **Teardown Mods Manager** may be used to update, backup, and remove installed Teardown mods during the wait for Steam Workshop availability in Teardown 0.6, and possibly after.
 
-## Recent Changes (v2.0.0 --> v2.1.1)
+## Recent Changes (v2.0.0 --> v2.1.2)
+* Added an EXE version that does not require local admin privileges. (v2.1.2)
+  * Note: This means you cannot update or remove mods from a folder outside of your user profile space or anywhere that requires elevated privileges. (v2.1.2)
 * Fixed missing variable that prevented some mods from properly being removed (v2.1.1)
 * Added feature to display and change current mods folder location; Mods list reloaded automatically after changing directory
 * Improved ModDir logic and basic mod validation. Requires info.txt to contain mod name or otherwise is ignored and not in mods list.
@@ -44,6 +46,8 @@ There are two methods to using Teardown Mods Manager and the choice is yours to 
 The EXE is created using PS2EXE (PowerShell to EXE converter). Info about this is located here: https://github.com/MScholtes/PS2EXE
   1. Download the `TeardownModsManager.exe` file.
   2. Double click the .exe file to open.
+
+  * Use `TeardownModsManager_NoAdmin.exe` if you do not have local administrative privileges on your PC, or if you do not want to run it with elevated privileges.
   
 ### **Via .PS1 script:**
 If you don't feel comfortable using the .exe, you may download the PowerShell script and follow the instructions below:
